@@ -1,15 +1,45 @@
 version: '3.1'
 services:
   stats-server:
+    build: stats
+    image: stats
+    container_name: stats
     ports:
       - "9090:9090"
+    depends_on:
+      - ewm-service
+      - stats-db
+#    environment: dockerfile of service
+
 
   stats-db:
     image: postgres:14-alpine
+    container_name: postgres
+    ports:
+      - "6542:5433"
+    environment:
+      - POSTGRES_DB=stats
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
 
   ewm-service:
+    build: main-service
+    image: main-service
+    container_name: main-service
     ports:
       - "8080:8080"
+    depends_on:
+      - ewm-db
+      - stats-server
+    environment:
+
 
   ewm-db:
     image: postgres:14-alpine
+    container_name: postgres
+    ports:
+        - "6541:5432"
+    environment:
+        - POSTGRES_DB=ewm
+        - POSTGRES_USER=root
+        - POSTGRES_PASSWORD=root
