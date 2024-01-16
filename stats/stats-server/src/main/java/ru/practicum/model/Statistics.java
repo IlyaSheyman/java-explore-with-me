@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "statistics")
@@ -20,7 +21,7 @@ public class Statistics {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private final int id;
+    private int id;
     @Column(name = "app")
     private String app;
     @Column(name = "uri")
@@ -28,7 +29,7 @@ public class Statistics {
     @Column(name = "ip")
     private String ip;
     @Column(name = "time")
-    private String timestamp;
+    private LocalDateTime timestamp;
     @Column(name = "hits")
     private int hits;
 }
