@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.StatisticsDto;
 import ru.practicum.dto.StatisticsForListDto;
-import ru.practicum.model.Statistics;
-import ru.practicum.model.StatisticsMapper;
+import ru.practicum.server.model.Statistics;
+import ru.practicum.server.model.StatisticsMapper;
 import ru.practicum.server.storage.StatisticsRepository;
 
 import java.time.LocalDateTime;
@@ -44,9 +44,9 @@ public class StatsService {
     }
 
     public List<StatisticsForListDto> getStats(LocalDateTime start,
-                                                    LocalDateTime end,
-                                                    String[] uris,
-                                                    boolean unique) {
+                                               LocalDateTime end,
+                                               String[] uris,
+                                               boolean unique) {
         List<Statistics> allStats = repository.findByTimestampBetween(start, end);
         List<Statistics> resultStats;
 

@@ -1,4 +1,4 @@
-package ru.practicum.model;
+package ru.practicum.server.model;
 
 import lombok.Builder;
 import lombok.Getter;

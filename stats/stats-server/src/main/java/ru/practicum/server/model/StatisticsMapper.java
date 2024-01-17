@@ -1,4 +1,4 @@
-package ru.practicum.model;
+package ru.practicum.server.model;
 
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.StatisticsDto;
@@ -11,7 +11,7 @@ public class StatisticsMapper {
         return null;
     }
 
-    public StatisticsForListDto toStatForListDto(ru.practicum.model.Statistics stat) {
+    public StatisticsForListDto toStatForListDto(Statistics stat) {
         return StatisticsForListDto
                 .builder()
                 .app(stat.getApp())
@@ -20,8 +20,8 @@ public class StatisticsMapper {
                 .build();
     }
 
-    public ru.practicum.model.Statistics fromStatisticsDto(StatisticsDto statsDto) {
-        return ru.practicum.model.Statistics
+    public Statistics fromStatisticsDto(StatisticsDto statsDto) {
+        return Statistics
                 .builder()
                 .app(statsDto.getApp())
                 .uri(statsDto.getUri())
