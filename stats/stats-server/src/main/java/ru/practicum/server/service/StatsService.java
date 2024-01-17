@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.StatisticsDto;
 import ru.practicum.dto.StatisticsForListDto;
-import ru.practicum.model.StatisticsMapper;
 import ru.practicum.model.Statistics;
+import ru.practicum.model.StatisticsMapper;
 import ru.practicum.server.storage.StatisticsRepository;
 
 import java.time.LocalDateTime;

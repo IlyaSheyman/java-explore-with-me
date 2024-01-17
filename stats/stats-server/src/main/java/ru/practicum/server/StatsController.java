@@ -14,7 +14,6 @@ import ru.practicum.server.exceptions.StatParametersException;
 import ru.practicum.server.service.StatsService;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Slf4j
@@ -37,19 +36,16 @@ public class StatsController {
 
     @ResponseBody
     @GetMapping("/stats")
-    public List<StatisticsForListDto> getStats(@RequestParam(value = "start") String start,
-                                               @RequestParam(value = "end") String end,
+    public List<StatisticsForListDto> getStats(@RequestParam(value = "start") LocalDateTime start,
+                                               @RequestParam(value = "end") LocalDateTime end,
                                                @RequestParam String[] uris,
                                                @RequestParam boolean unique) {
         log.info("Получен запрос на получение статистики по посещениям");
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime startTime = LocalDateTime.parse(start, formatter);
-        LocalDateTime endTime = LocalDateTime.parse(end, formatter);
 
-        if (startTime.isAfter(LocalDateTime.now()) || endTime.isAfter(LocalDateTime.now()) || uris.length == 0) {
+        if (start.isAfter(LocalDateTime.now()) || end.isAfter(LocalDateTime.now()) || uris.length == 0) {
             throw new StatParametersException("Некорректные параметры для получения статистики по посещениям");
         }
-        return service.getStats(startTime, endTime, uris, unique);
+        return service.getStats(start, end, uris, unique);
     }
 }
