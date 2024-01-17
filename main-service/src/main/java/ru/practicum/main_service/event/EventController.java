@@ -1,4 +1,4 @@
-package ru.practicum.event;
+package ru.practicum.main_service.event;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.StatsClient;
-import ru.practicum.event.dto.EventDto;
+import ru.practicum.client.StatsClient;
+import ru.practicum.main_service.event.dto.EventDto;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,7 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 public class EventController {
     private final StatsClient statsClient;
 
-    @Autowired
     public EventController(StatsClient statsClient) {
         this.statsClient = statsClient;
     }

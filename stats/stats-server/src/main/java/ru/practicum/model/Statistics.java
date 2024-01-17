@@ -2,6 +2,8 @@ package ru.practicum.model;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -17,7 +19,17 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 @Setter
+@NoArgsConstructor
 public class Statistics {
+
+    public Statistics(int id, String app, String uri, String ip, LocalDateTime timestamp, int hits) {
+        this.id = id;
+        this.app = app;
+        this.uri = uri;
+        this.ip = ip;
+        this.timestamp = timestamp;
+        this.hits = hits;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

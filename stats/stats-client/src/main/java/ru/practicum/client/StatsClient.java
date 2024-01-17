@@ -1,6 +1,5 @@
-package ru.practicum;
+package ru.practicum.client;
 
-import jdk.jshell.Snippet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -18,6 +17,8 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.dto.StatisticsDto;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -27,9 +28,9 @@ public class StatsClient {
     protected final RestTemplate rest;
 
     @Autowired
-    public StatsClient(@Value("http://stats:9090") String serverUrl, RestTemplateBuilder builder) {
+    public StatsClient(RestTemplateBuilder builder) {
         this.rest = builder
-                .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
+                .uriTemplateHandler(new DefaultUriBuilderFactory("http://localhost:9090"))
                 .requestFactory(HttpComponentsClientHttpRequestFactory::new)
                 .build();
     }
@@ -47,16 +48,19 @@ public class StatsClient {
         return makeAndSendRequest(HttpMethod.POST, path, null, statsDto);
     }
 
-//    public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, String[] uris, boolean unique) {
-//        Map<String, Object> parameters = Map.of(
-//                "start", start,
-//                "end", end,
-//                "uris", uris,
-//                "unique", unique
-//        );
-//        final String path = "/stats?start={start}&end={end}&uris={uris}&unique={unique}";
-//        return makeAndSendRequest(HttpMethod.GET, path, parameters, null);
-//    }
+    public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, String[] uris, boolean unique) {
+        String encodedStart = URLEncoder.encode(start.toString(), StandardCharsets.UTF_8);
+        String encodedEnd = URLEncoder.encode(end.toString(), StandardCharsets.UTF_8);
+
+        Map<String, Object> parameters = Map.of(
+                "start", encodedStart,
+                "end", encodedEnd,
+                "uris", uris,
+                "unique", unique
+        );
+        final String path = "/stats?start={start}&end={end}&uris={uris}&unique={unique}";
+        return makeAndSendRequest(HttpMethod.GET, path, parameters, null);
+    }
 
     private <T> ResponseEntity<Object> makeAndSendRequest(HttpMethod method, String path,
                                                           @Nullable Map<String, Object> parameters, @Nullable T body) {
