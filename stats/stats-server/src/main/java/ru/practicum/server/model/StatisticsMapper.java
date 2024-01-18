@@ -1,10 +1,10 @@
 package ru.practicum.server.model;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import ru.practicum.dto.StatisticsDto;
 import ru.practicum.dto.StatisticsForListDto;
 
-@Service
+@Component
 public class StatisticsMapper {
 
     public StatisticsDto toStatisticsDto(Statistics stat) {

@@ -3,6 +3,7 @@ package ru.practicum.server.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.StatisticsDto;
 import ru.practicum.dto.StatisticsForListDto;
 import ru.practicum.server.model.Statistics;
@@ -27,6 +28,7 @@ public class StatsService {
         this.repository = repository;
     }
 
+    @Transactional
     public StatisticsDto addStats(StatisticsDto stats) {
         Statistics stat = mapper.fromStatisticsDto(stats);
 
