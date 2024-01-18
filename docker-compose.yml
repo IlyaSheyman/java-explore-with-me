@@ -7,7 +7,6 @@ services:
     ports:
       - "9090:9090"
     depends_on:
-      - ewm-service
       - stats-db
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5433/stats
