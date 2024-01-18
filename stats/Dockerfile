@@ -1,4 +1,3 @@
 FROM amazoncorretto:11-alpine-jdk
-WORKDIR /app
-COPY target/stats-server.jar /app/stats-server.jar
-CMD ["java", "-jar", "stats-server.jar"]
+COPY target/stats-server-0.0.1-SNAPSHOT.jar app.jar
+ENTRYPOINT ["java", "-jar", "/app.jar"]
