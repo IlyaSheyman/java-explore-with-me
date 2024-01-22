@@ -10,4 +10,4 @@ public class MainServiceRun {
         SpringApplication.run(MainServiceRun.class, args);
     }
 
-ю}
+}

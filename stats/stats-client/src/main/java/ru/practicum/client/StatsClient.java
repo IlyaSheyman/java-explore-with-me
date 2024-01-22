@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -35,12 +36,15 @@ public class StatsClient {
     }
 
     public ResponseEntity<Object> postStats(HttpServletRequest request) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedTimestamp = LocalDateTime.now().format(formatter);
+
         StatisticsDto statsDto = StatisticsDto
                 .builder()
                 .app("ewm-main-service")
                 .uri(request.getRequestURI())
                 .ip(request.getRemoteAddr())
-                .timestamp(LocalDateTime.now())
+                .timestamp(formattedTimestamp)
                 .build();
 
         final String path = "/hit";
