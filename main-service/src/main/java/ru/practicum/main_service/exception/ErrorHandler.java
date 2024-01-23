@@ -20,17 +20,19 @@ public class ErrorHandler {
     public ErrorResponse handleNotFoundException(final NotFoundException e) {
         log.warn("404 {}", e.getMessage(), e);
         return new ErrorResponse(e.getMessage(),
-                e.getCause().toString().toString(),
+                "Object not found",
                 HttpStatus.NOT_FOUND.toString(),
                 LocalDateTime.now().format(formatter));
     }
+
+    //TODO добавить обработку некорректных запросов
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleException(final Exception e) {
         log.warn("500 {}", e.getMessage(), e);
         return new ErrorResponse(e.getMessage(),
-                e.getCause().toString().toString(),
+                "Exception",
                 HttpStatus.INTERNAL_SERVER_ERROR.toString(),
                 LocalDateTime.now().format(formatter));
     }

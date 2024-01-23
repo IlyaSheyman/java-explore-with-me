@@ -33,6 +33,7 @@ public class EventRequest {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "event_id")
     private Event event;
 
     @ManyToOne

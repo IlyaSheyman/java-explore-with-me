@@ -1,13 +1,12 @@
 package ru.practicum.main_service.event.model;
 
-import com.sun.jdi.request.EventRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import ru.practicum.main_service.category.model_and_dto.Category;
+import ru.practicum.main_service.event_request.model.EventRequest;
 import ru.practicum.main_service.user.model_and_dto.User;
 
 import javax.persistence.Column;
@@ -17,7 +16,10 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -28,8 +30,8 @@ import java.util.List;
 @Setter
 @Builder
 @NoArgsConstructor
-@RequiredArgsConstructor
 @AllArgsConstructor
+@Table(name = "events")
 public class Event {
 
     @Id
@@ -46,8 +48,11 @@ public class Event {
     private String description;
 
     @ManyToOne
+    @JoinColumn(name = "category_id")
     private Category category;
+
     @ManyToOne
+    @JoinColumn(name = "initiator_id")
     private User initiator;
 
     @NotNull
@@ -73,6 +78,7 @@ public class Event {
     @Column(name = "request_moderation")
     private boolean requestModeration;
 
+    @OneToMany(mappedBy = "event")
     private List<EventRequest> confirmedRequests;
 
 }

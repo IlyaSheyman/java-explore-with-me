@@ -2,6 +2,7 @@ package ru.practicum.main_service.admin;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,13 +18,17 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.main_service.admin.service.AdminService;
 import ru.practicum.main_service.category.model_and_dto.Category;
 import ru.practicum.main_service.category.model_and_dto.CategoryDto;
+import ru.practicum.main_service.event.dto.EventDto;
 import ru.practicum.main_service.user.model_and_dto.User;
 import ru.practicum.main_service.user.model_and_dto.UserDto;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static ru.practicum.main_service.consts.Consts.TIME_FORMAT;
 
 @RestController
 @Slf4j
@@ -87,14 +92,18 @@ public class AdminController {
 
     @ResponseBody
     @GetMapping(path = "/events")
-    public Object getEvents(@RequestParam(value = "users", required = false) ArrayList<Integer> usersIds,
-                            @RequestParam(value = "states") ArrayList<String> states,
-                            @RequestParam(value = "categories") ArrayList<Integer> categories,
-                            @RequestParam(value = "rangeStart") String rangeStart,
-                            @RequestParam(value = "rangeEnd") String rangeEnd,
-                            @RequestParam(value = "from", defaultValue = "0") @Min(0) int from,
-                            @RequestParam(value = "size", defaultValue = "10") @Min(1) int size) {
-        return null;
+    public List<EventDto> getEvents(@RequestParam(value = "users", required = false) ArrayList<Integer> usersIds,
+                                    @RequestParam(value = "states", required = false) ArrayList<String> states,
+                                    @RequestParam(value = "categories", required = false) ArrayList<Integer> categories,
+                                    @RequestParam(value = "rangeStart", required = false)
+                                        @DateTimeFormat(pattern = TIME_FORMAT) LocalDateTime rangeStart,
+                                    @RequestParam(value = "rangeEnd", required = false)
+                                        @DateTimeFormat(pattern = TIME_FORMAT) LocalDateTime rangeEnd,
+                                    @RequestParam(value = "from", defaultValue = "0", required = false) @Min(0) int from,
+                                    @RequestParam(value = "size", defaultValue = "10", required = false) @Min(1) int size) {
+        log.info("Получен запрос на получение полной информации обо всех событиях");
+
+        return service.getEvents(usersIds,states, categories, rangeStart, rangeEnd, from, size);
     }
 
 }

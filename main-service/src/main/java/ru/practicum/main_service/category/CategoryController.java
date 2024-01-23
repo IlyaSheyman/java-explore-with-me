@@ -39,5 +39,4 @@ public class CategoryController {
         log.info("Поступил запрос на получение категории по id");
         return service.getCategoriesById(id);
     }
-
 }
