@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.practicum.main_service.location.model.Location;
 
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotBlank;
@@ -47,6 +48,9 @@ public class EventCreateDto {
 
     @PositiveOrZero
     private int participantLimit;
+
+    @NotNull
+    private Location location;
 
     @NotNull
     private Boolean requestModeration;

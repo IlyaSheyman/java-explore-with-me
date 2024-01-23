@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.practicum.main_service.category.model_and_dto.CategoryDto;
 import ru.practicum.main_service.event.model.EventState;
+import ru.practicum.main_service.location.model.Location;
 import ru.practicum.main_service.user.model_and_dto.UserDto;
 
 import javax.validation.constraints.Min;
@@ -36,7 +37,7 @@ public class EventDto {
     @NotNull
     private UserDto initiator;
     @NotNull
-    private boolean isPaid;
+    private boolean paid;
     @JsonFormat(pattern = TIME_FORMAT)
     private LocalDateTime createdOn;
     @NotNull
@@ -47,6 +48,8 @@ public class EventDto {
     private LocalDateTime eventDate;
     @Min(0)
     private int confirmedRequests;
+    @NotNull
+    private Location location;
     @PositiveOrZero
     private int participantLimit;
     @NotNull

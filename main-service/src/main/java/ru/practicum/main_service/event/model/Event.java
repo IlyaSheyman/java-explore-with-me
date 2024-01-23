@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.practicum.main_service.category.model_and_dto.Category;
 import ru.practicum.main_service.event_request.model.EventRequest;
+import ru.practicum.main_service.location.model.Location;
 import ru.practicum.main_service.user.model_and_dto.User;
 
 import javax.persistence.Column;
@@ -19,6 +20,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -57,7 +59,7 @@ public class Event {
 
     @NotNull
     @Column(name = "paid")
-    private boolean isPaid;
+    private boolean paid;
 
     @Column(name = "created_on")
     private LocalDateTime createdOn;
@@ -74,6 +76,9 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventState state;
 
+    @OneToOne
+    @JoinColumn(name = "location_id")
+    private Location location;
     @NotNull
     @Column(name = "request_moderation")
     private boolean requestModeration;

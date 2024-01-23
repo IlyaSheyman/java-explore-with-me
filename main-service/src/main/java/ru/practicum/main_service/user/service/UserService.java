@@ -11,6 +11,8 @@ import ru.practicum.main_service.event.model.EventState;
 import ru.practicum.main_service.event.storage.EventRepository;
 import ru.practicum.main_service.exception.IncorrectRequestException;
 import ru.practicum.main_service.exception.NotFoundException;
+import ru.practicum.main_service.location.model.Location;
+import ru.practicum.main_service.location.storage.LocationRepository;
 import ru.practicum.main_service.user.model_and_dto.User;
 import ru.practicum.main_service.user.storage.UserRepository;
 
@@ -22,13 +24,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final EventRepository eventRepository;
+    private final LocationRepository locationRepository;
 
     private final EventMapper eventMapper;
 
-    public UserService(UserRepository userRepository, CategoryRepository categoryRepository, EventRepository eventRepository, EventMapper eventMapper) {
+    public UserService(UserRepository userRepository, CategoryRepository categoryRepository, EventRepository eventRepository, LocationRepository locationRepository, EventMapper eventMapper) {
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.eventRepository = eventRepository;
+        this.locationRepository = locationRepository;
         this.eventMapper = eventMapper;
     }
 
@@ -38,6 +42,7 @@ public class UserService {
         User initiator = getUserById(userId);
         Category category = getCategoryById(eventDto.getCategory());
         LocalDateTime eventDate = eventDto.getEventDate();
+        Location location = getLocation(eventDto.getLocation());
 
         Event event = eventMapper.fromEventCreateDto(eventDto);
         event.setInitiator(initiator);
@@ -45,10 +50,22 @@ public class UserService {
         event.setCategory(category);
         event.setState(EventState.PENDING);
         event.setCreatedOn(LocalDateTime.now());
+        event.setLocation(location);
 
         Event eventWithId = eventRepository.save(event);
         System.out.println(event.toString());
         return eventMapper.toEventDto(eventWithId);
+    }
+
+    private Location getLocation(Location location) {
+        if (location != null) {
+            double lat = location.getLat();
+            double lon = location.getLon();
+            return locationRepository.getByLatAndLon(lat, lon)
+                    .orElse(locationRepository.save(location));
+        } else {
+            return null;
+        }
     }
 
     private void checkEventDate(LocalDateTime eventDate) {

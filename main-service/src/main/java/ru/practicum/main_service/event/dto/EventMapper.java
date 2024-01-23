@@ -20,12 +20,13 @@ public class EventMapper {
 
     public Event fromEventDto(EventDto dto) {
         return Event.builder()
+                .location(dto.getLocation())
                 .eventDate(dto.getEventDate())
                 .id(dto.getId())
                 .state(dto.getState())
                 .title(dto.getTitle())
                 .views(dto.getViews())
-                .isPaid(dto.isPaid())
+                .paid(dto.isPaid())
                 .initiator(userMapper.fromUserDto(dto.getInitiator()))
                 .description(dto.getDescription())
                 .publishedOn(dto.getPublishedOn())
@@ -37,6 +38,7 @@ public class EventMapper {
     public EventDto toEventDto(Event event) {
         return EventDto
                 .builder()
+                .location(event.getLocation())
                 .category(categoryMapper.toCategoryDto(event.getCategory()))
                 .eventDate(event.getEventDate())
                 .confirmedRequests(event.getConfirmedRequests().size())
@@ -44,7 +46,7 @@ public class EventMapper {
                 .state(event.getState())
                 .title(event.getTitle())
                 .views(event.getViews())
-                .isPaid(event.isPaid())
+                .paid(event.isPaid())
                 .initiator(userMapper.toUserDto(event.getInitiator()))
                 .description(event.getDescription())
                 .createdOn(event.getCreatedOn())
@@ -56,6 +58,7 @@ public class EventMapper {
 
     public Event fromEventCreateDto(EventCreateDto dto) {
         return Event.builder()
+                .location(dto.getLocation())
                 .confirmedRequests(new ArrayList<EventRequest>())
                 .eventDate(dto.getEventDate())
                 .title(dto.getTitle())
