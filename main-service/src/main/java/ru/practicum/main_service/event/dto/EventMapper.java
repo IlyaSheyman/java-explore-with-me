@@ -41,12 +41,13 @@ public class EventMapper {
                 .location(event.getLocation())
                 .category(categoryMapper.toCategoryDto(event.getCategory()))
                 .eventDate(event.getEventDate())
-                .confirmedRequests(event.getConfirmedRequests().size())
+                .confirmedRequests(new ArrayList<EventRequest>().size())
                 .id(event.getId())
                 .state(event.getState())
                 .title(event.getTitle())
                 .views(event.getViews())
                 .paid(event.isPaid())
+                .requestModeration(event.isRequestModeration())
                 .initiator(userMapper.toUserDto(event.getInitiator()))
                 .description(event.getDescription())
                 .createdOn(event.getCreatedOn())
@@ -58,6 +59,8 @@ public class EventMapper {
 
     public Event fromEventCreateDto(EventCreateDto dto) {
         return Event.builder()
+                .requestModeration(dto.getRequestModeration())
+                .paid(dto.getPaid())
                 .location(dto.getLocation())
                 .confirmedRequests(new ArrayList<EventRequest>())
                 .eventDate(dto.getEventDate())
@@ -65,6 +68,19 @@ public class EventMapper {
                 .description(dto.getDescription())
                 .participantLimit(dto.getParticipantLimit())
                 .annotation(dto.getAnnotation())
+                .build();
+    }
+
+    public EventSmallDto toEventSmallDto(Event event) {
+        return EventSmallDto.builder()
+                .eventDate(event.getEventDate())
+                .annotation(event.getAnnotation())
+                .category(categoryMapper.toCategoryDto(event.getCategory()))
+                .title(event.getTitle())
+                .id(event.getId())
+                .initiator(userMapper.toUserDto(event.getInitiator()))
+                .views(event.getViews())
+                .paid(event.isPaid())
                 .build();
     }
 }

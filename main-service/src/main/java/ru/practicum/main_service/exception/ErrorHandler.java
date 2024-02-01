@@ -9,11 +9,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import static ru.practicum.main_service.consts.Consts.TIME_FORMAT;
+
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(TIME_FORMAT);
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -25,7 +27,25 @@ public class ErrorHandler {
                 LocalDateTime.now().format(formatter));
     }
 
-    //TODO добавить обработку некорректных запросов
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIncorrectRequest(final IncorrectRequestException e) {
+        log.warn("400 {}", e.getMessage(), e);
+        return new ErrorResponse(e.getMessage(),
+                "IncorrectRequestException",
+                HttpStatus.BAD_REQUEST.toString(),
+                LocalDateTime.now().format(formatter));
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleIncorrectRequest(final ConflictRequestException e) {
+        log.warn("409 {}", e.getMessage(), e);
+        return new ErrorResponse(e.getMessage(),
+                "ConflictRequestException",
+                HttpStatus.CONFLICT.toString(),
+                LocalDateTime.now().format(formatter));
+    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

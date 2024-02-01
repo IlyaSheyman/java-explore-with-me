@@ -18,7 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.main_service.admin.service.AdminService;
 import ru.practicum.main_service.category.model_and_dto.Category;
 import ru.practicum.main_service.category.model_and_dto.CategoryDto;
+import ru.practicum.main_service.compilation.dto.CompilationBigDto;
+import ru.practicum.main_service.compilation.dto.NewCompilationDto;
+import ru.practicum.main_service.compilation.dto.UpdateCompilationRequest;
 import ru.practicum.main_service.event.dto.EventDto;
+import ru.practicum.main_service.event.dto.EventUpdateAdminDto;
+import ru.practicum.main_service.event.dto.EventUpdateDto;
 import ru.practicum.main_service.user.model_and_dto.User;
 import ru.practicum.main_service.user.model_and_dto.UserDto;
 
@@ -106,4 +111,32 @@ public class AdminController {
         return service.getEvents(usersIds,states, categories, rangeStart, rangeEnd, from, size);
     }
 
+    @ResponseBody
+    @PatchMapping(path = "/events/{eventId}")
+    public EventDto eventAdministration(@PathVariable int eventId,
+                                        @RequestBody @Valid EventUpdateAdminDto updateAdminDto) {
+        log.info("Получен запрос на администрацию события");
+        return service.eventAdministration(eventId, updateAdminDto);
+    }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping(path = "/compilations/{compId}")
+    public void deleteCompilation(@PathVariable int compId) {
+        log.info("Получен запрос на удаление подборки событий");
+        service.deleteCompilation(compId);
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(path = "/compilations")
+    public CompilationBigDto addCompilation(@RequestBody NewCompilationDto dto) {
+        log.info("Получен запрос на добавление новой подборки событий");
+        return service.addCompilation(dto);
+    }
+
+    @PatchMapping(path = "/compilations/{compId}")
+    public CompilationBigDto updateCompilation(@PathVariable int compId,
+                                               @RequestBody @Valid UpdateCompilationRequest dto) {
+        log.info("Получен запрос на обновление подборки событий");
+        return service.updateCompilation(compId, dto);
+    }
 }

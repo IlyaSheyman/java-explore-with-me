@@ -8,6 +8,7 @@ import lombok.Setter;
 import ru.practicum.main_service.event.model.Event;
 import ru.practicum.main_service.user.model_and_dto.User;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -30,7 +31,7 @@ public class EventRequest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
 
     @ManyToOne
     @JoinColumn(name = "event_id")
@@ -40,6 +41,7 @@ public class EventRequest {
     @JoinColumn(name = "requester_id")
     private User requester;
 
+    @Column(name = "created_on")
     private LocalDateTime created;
 
     @Enumerated(EnumType.STRING)
