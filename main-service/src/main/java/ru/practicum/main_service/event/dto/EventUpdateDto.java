@@ -9,6 +9,7 @@ import lombok.Setter;
 import ru.practicum.main_service.event.model.StateAction;
 import ru.practicum.main_service.location.model.Location;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
@@ -21,11 +22,14 @@ import static ru.practicum.main_service.consts.Consts.TIME_FORMAT;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EventUpdateDto {
+    @NotBlank
     @Size(min = 3, max = 120)
     private String title;
-    @Size(min = 3, max = 1500)
+    @NotBlank
+    @Size(min = 20, max = 2000)
     private String annotation;
-    @Size(min = 3, max = 6000)
+    @NotBlank
+    @Size(min = 20, max = 7000)
     private String description;
     private int category;
     private Boolean paid;

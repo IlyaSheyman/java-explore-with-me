@@ -8,6 +8,7 @@ public class EventRequestMapper {
     public EventRequestDto toRequestDto(EventRequest request) {
         return EventRequestDto.builder()
                 .id(request.getId())
+                .requester(request.getRequester().getId())
                 .event(request.getEvent().getId())
                 .status(request.getStatus())
                 .created(request.getCreated())

@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CategoryDto {
-    String name;
+    private String name;
 
     public CategoryDto(String name) {
         this.name = name;

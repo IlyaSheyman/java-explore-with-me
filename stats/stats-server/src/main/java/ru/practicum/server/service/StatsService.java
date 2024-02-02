@@ -52,44 +52,33 @@ public class StatsService {
                                                boolean unique) {
 
         List<Statistics> allStats = repository.findByTimestampBetween(start, end);
-        List<Statistics> resultStats;
+        List<StatisticsForListDto> resultStats;
 
         if (unique) {
-            if (uris == null) {
-                resultStats = allStats.stream()
-                        .filter(stat -> allStats.stream()
-                                .filter(s -> s.getUri().equals(stat.getUri()))
-                                .map(Statistics::getIp)
-                                .distinct()
-                                .count() == 1)
-                        .collect(Collectors.toList());
+            if (uris == null || uris.length == 0) {
+                resultStats = repository.getByCreatedBetweenAndUniqueIp(start, end);
             } else {
-                resultStats = allStats.stream()
-                        .filter(stat -> Arrays.asList(uris).contains(stat.getUri()))
-                        .filter(stat -> allStats.stream()
-                                .filter(s -> s.getUri().equals(stat.getUri()))
-                                .map(Statistics::getIp)
-                                .distinct()
-                                .count() == 1)
-                        .collect(Collectors.toList());
+                resultStats = repository.getByCreatedBetweenAndUriInAndUniqueIp(start, end, uris);
             }
         } else {
-            if (uris == null) {
-                resultStats = allStats.stream()
+            if (uris == null || uris.length == 0) {
+                resultStats = repository
+                        .findByTimestampBetween(start, end)
+                        .stream()
+                        .map(mapper::toStatForListDto)
                         .collect(Collectors.toList());
             } else {
                 resultStats = allStats.stream()
                         .filter(stat -> Arrays.asList(uris).contains(stat.getUri()))
+                        .map(mapper::toStatForListDto)
                         .collect(Collectors.toList());
             }
         }
 
         List<StatisticsForListDto> finalStats = resultStats
                 .stream()
-                .map(mapper::toStatForListDto)
                 .sorted(Comparator.comparingInt(StatisticsForListDto::getHits).reversed())
                 .collect(Collectors.toList());
-
 
         return finalStats;
     }

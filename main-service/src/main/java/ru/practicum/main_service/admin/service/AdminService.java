@@ -2,11 +2,11 @@ package ru.practicum.main_service.admin.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main_service.category.model_and_dto.Category;
 import ru.practicum.main_service.category.model_and_dto.CategoryDto;
 import ru.practicum.main_service.category.model_and_dto.CategoryMapper;
@@ -28,7 +28,6 @@ import ru.practicum.main_service.exception.ConflictRequestException;
 import ru.practicum.main_service.exception.IncorrectRequestException;
 import ru.practicum.main_service.exception.NotFoundException;
 import ru.practicum.main_service.location.dto.LocationDto;
-import ru.practicum.main_service.location.dto.LocationMapper;
 import ru.practicum.main_service.location.storage.LocationRepository;
 import ru.practicum.main_service.user.model_and_dto.User;
 import ru.practicum.main_service.user.model_and_dto.UserDto;
@@ -58,9 +57,9 @@ public class AdminService {
     private final CompilationRepository compilationRepository;
     private final CompilationMapper compilationMapper;
 
-    private final LocationMapper locationMapper;
     private final LocationRepository locationRepository;
 
+    @Transactional
     public Category addCategory(CategoryDto categoryDto) {
         if (categoryRepository.findAllNames().contains(categoryDto.getName())) {
             throw new IncorrectRequestException("Некорректный запрос: имя категории должно быть уникальным");
@@ -71,6 +70,7 @@ public class AdminService {
         }
     }
 
+    @Transactional
     public void deleteCategory(int catId) {
         if (categoryRepository.findById(catId) != null) {
             categoryRepository.deleteById(catId);
@@ -80,6 +80,7 @@ public class AdminService {
         //TODO добавить проверку на то, что с категорией не связан ни один ивент
     }
 
+    @Transactional
     public Category editCategory(int catId, CategoryDto catDto) {
         if (categoryRepository.findById(catId) != null) {
             if (categoryRepository.findAllNames().contains(catDto.getName())) {
@@ -108,6 +109,7 @@ public class AdminService {
         return users.getContent();
     }
 
+    @Transactional
     public User addUser(UserDto userDto) {
         String email = userDto.getEmail();
         if (userRepository.findByEmail(email) != null) {
@@ -117,6 +119,7 @@ public class AdminService {
         }
     }
 
+    @Transactional
     public void deleteUser(int id) {
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id); // TODO проверить, что в бд есть констрейнт на удаление связанных сущностей
@@ -163,15 +166,14 @@ public class AdminService {
     }
 
     public void validateTimeRange(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
-        if (rangeEnd == null || rangeStart == null) {
-            throw new IncorrectRequestException("Один из временных параметров не указан");
-        } else if (rangeEnd.isBefore(rangeStart)) {
+       if (rangeEnd.isBefore(rangeStart)) {
             throw new IncorrectRequestException("Конец временного промежутка раньше начала");
         } else if (rangeEnd.equals(rangeStart)) {
             throw new IncorrectRequestException("Конец и начало совпадают");
         }
     }
 
+    @Transactional
     public CompilationBigDto addCompilation(NewCompilationDto dto) {
         checkTitle(dto.getTitle());
         Compilation compilation = compilationMapper.fromCompilationNewDto(dto); 
@@ -189,6 +191,7 @@ public class AdminService {
         }
     }
 
+    @Transactional
     public void deleteCompilation(int compId) {
         if (compilationRepository.existsById(compId)) {
             compilationRepository.deleteById(compId);
@@ -197,6 +200,7 @@ public class AdminService {
         }
     }
 
+    @Transactional
     public CompilationBigDto updateCompilation(int compId, UpdateCompilationRequest dto) {
         checkTitle(dto.getTitle());
 
@@ -220,6 +224,7 @@ public class AdminService {
     }
 
 
+    @Transactional
     public EventDto eventAdministration(int eventId, EventUpdateAdminDto updateAdminDto) {
         Event event = eventRepository
                 .findById(eventId)
@@ -233,9 +238,11 @@ public class AdminService {
         changeState(event, updateAdminDto.getStateAction());
         updateEvent(event, updateAdminDto);
 
+        eventRepository.save(event);
         return eventMapper.toEventDto(event);
     }
 
+    @Transactional
     private void updateEvent(Event event, EventUpdateAdminDto dto) {
         LocationDto locDto = dto.getLocation();
 

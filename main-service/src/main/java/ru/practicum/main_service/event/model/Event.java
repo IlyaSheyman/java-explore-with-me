@@ -83,7 +83,6 @@ public class Event {
     @Column(name = "request_moderation")
     private boolean requestModeration;
 
-    @OneToMany(mappedBy = "event")
-    private List<EventRequest> confirmedRequests;
+    private int confirmedRequests;
 
 }

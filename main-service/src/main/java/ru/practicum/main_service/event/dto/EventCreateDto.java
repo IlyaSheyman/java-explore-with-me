@@ -24,15 +24,16 @@ import static ru.practicum.main_service.consts.Consts.TIME_FORMAT;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EventCreateDto {
-    @NotNull
+    @NotBlank
     @Size(min = 3, max = 120)
     private String title;
-    @NotNull
-    @Size(min = 3, max = 1500)
+
+    @NotBlank
+    @Size(min = 20, max = 2000)
     private String annotation;
 
     @NotBlank
-    @Size(min = 3, max = 6000)
+    @Size(min = 20, max = 7000)
     private String description;
 
     @NotNull

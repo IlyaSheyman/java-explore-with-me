@@ -2,6 +2,7 @@ package ru.practicum.main_service.user.service;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main_service.category.model_and_dto.Category;
 import ru.practicum.main_service.category.storage.CategoryRepository;
 import ru.practicum.main_service.event.dto.EventCreateDto;
@@ -28,7 +29,6 @@ import ru.practicum.main_service.location.storage.LocationRepository;
 import ru.practicum.main_service.user.model_and_dto.User;
 import ru.practicum.main_service.user.storage.UserRepository;
 
-import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,6 +62,7 @@ public class UserService {
         this.requestMapper = requestMapper;
     }
 
+    @Transactional
     public EventDto createEvent(int userId, EventCreateDto eventDto) {
         checkEventDate(eventDto.getEventDate());
 
@@ -103,11 +104,9 @@ public class UserService {
     }
 
     private User getUserById(int userId) {
-        if (userRepository.existsById(userId)) {
-            return userRepository.getById(userId);
-        } else {
-            throw new NotFoundException("Пользователь с id " + userId + " не найден");
-        }
+        return userRepository
+                .findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
     }
 
     public Category getCategoryById(int id) {
@@ -142,6 +141,7 @@ public class UserService {
         return eventMapper.toEventDto(event);
     }
 
+    @Transactional
     public EventDto changeEvent(int userId, int eventId, EventUpdateDto eventDto) {
         LocalDateTime newEventTime = eventDto.getEventDate();
         if (newEventTime != null) {
@@ -186,7 +186,7 @@ public class UserService {
         if (dto.getRequestModeration() != null) event.setRequestModeration(dto.getRequestModeration());
         return event;
     }
-
+    
     public List<EventRequestDto> getAllUserRequests(int userId, int from, int size) {
         User user = getUserById(userId);
         List<EventRequest> requests = requestRepository
@@ -202,22 +202,50 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public EventRequestDto addRequest(int userId, int eventId) {
         EventRequestDto requestDto = new EventRequestDto();
-
-        requestDto.setRequester(userId);
-        requestDto.setCreated(LocalDateTime.now());
-        EventRequest request = requestMapper.fromRequestDto(requestDto);
 
         User requester = getUserById(userId);
         Event event = getEventById(eventId);
 
-        request.setRequester(requester);
-        request.setEvent(event);
-        request.setStatus(RequestState.PENDING);
+        if (!event.getState().equals(EventState.PUBLISHED)) {
+            throw new ConflictRequestException("Нельзя поучаствовать в неопубликованном мероприятии");
+        }
+        if (userId == event.getInitiator().getId()) {
+            throw new ConflictRequestException("Организатор мероприятия не может отправить запрос на участие");
+        }
+        if (requestRepository.existsByRequester_IdAndEvent_Id(userId, eventId)) {
+            throw new ConflictRequestException("Запрос этого пользователя на участие в этом мероприятии уже существует");
+        }
+
+        EventRequest request = EventRequest.builder()
+                .created(LocalDateTime.now())
+                .event(event)
+                .requester(requester)
+                .status(getRequestState(event))
+                .build();
 
         EventRequest result = requestRepository.save(request);
+
         return requestMapper.toRequestDto(result);
+    }
+
+    private RequestState getRequestState(Event event) {
+        int confirmed = event.getConfirmedRequests();
+
+        if (event.getParticipantLimit() == 0) {
+            event.setConfirmedRequests(++confirmed);
+            eventRepository.save(event);
+            return RequestState.CONFIRMED;
+        }
+
+        if (!event.isRequestModeration()) {
+            if (++confirmed > event.getParticipantLimit()) {
+                throw new ConflictRequestException("Лимит участников был достигнут");
+            }
+        }
+        return RequestState.PENDING;
     }
 
     private Event getEventById(int eventId) {
@@ -244,7 +272,8 @@ public class UserService {
                 .orElse(Collections.emptyList());
     }
 
-    public EventRequestDto cancelRequest(int userId, int requestId, @Valid EventRequestDto dto) {
+    @Transactional
+    public EventRequestDto cancelRequest(int userId, int requestId, EventRequestDto dto) {
         EventRequest request = getRequestById(requestId);
 
         if (request.getStatus().equals(RequestState.CANCELED)) { return dto; }
@@ -265,6 +294,7 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("Запрос с id " + requestId + " не найден"));
     }
 
+    @Transactional
     public RequestStatusUpdateResult changeRequestStatus(int userId, int eventId, RequestStatusUpdateRequest request) {
         getUserById(userId);
         Event event = getEventById(eventId);

@@ -9,7 +9,6 @@ import ru.practicum.main_service.event_request.model.RequestState;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter

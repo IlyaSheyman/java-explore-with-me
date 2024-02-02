@@ -62,7 +62,6 @@ public class EventMapper {
                 .requestModeration(dto.getRequestModeration())
                 .paid(dto.getPaid())
                 .location(dto.getLocation())
-                .confirmedRequests(new ArrayList<EventRequest>())
                 .eventDate(dto.getEventDate())
                 .title(dto.getTitle())
                 .description(dto.getDescription())

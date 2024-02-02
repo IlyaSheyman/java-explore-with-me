@@ -1,9 +1,11 @@
 package ru.practicum.main_service.admin;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -35,17 +37,15 @@ import java.util.List;
 
 import static ru.practicum.main_service.consts.Consts.TIME_FORMAT;
 
-@RestController
+
 @Slf4j
 @RequestMapping(path = "/admin")
+@Validated
+@RestController
+@RequiredArgsConstructor
 public class AdminController {
 
     private final AdminService service;
-
-    @Autowired
-    public AdminController(AdminService service) {
-        this.service = service;
-    }
 
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)

@@ -1,7 +1,9 @@
 package ru.practicum.main_service.user;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,15 +28,13 @@ import javax.validation.constraints.Min;
 import java.util.List;
 
 @Slf4j
-@RestController
+@Validated
 @RequestMapping("/users")
+@RestController
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService service;
-
-    public UserController(UserService userService) {
-        this.service = userService ;
-    }
 
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
@@ -73,13 +73,11 @@ public class UserController {
         return service.changeEvent(userId, eventId, eventDto);
     }
 
-    /** Логика работы а запросами на участие в событиях **/
-
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{userId}/requests")
     public EventRequestDto addRequest(@PathVariable int userId,
                                       @RequestParam int eventId) {
-        log.info("Получен запрос на получение информации о запросах на участие в событии");
+        log.info("Получен запрос на создание нового запроса на участие в событии");
         return service.addRequest(userId, eventId);
     }
 
