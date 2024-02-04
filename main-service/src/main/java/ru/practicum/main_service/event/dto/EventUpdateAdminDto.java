@@ -10,6 +10,8 @@ import ru.practicum.main_service.event.model.StateAction;
 import ru.practicum.main_service.event.model.StateAdminAction;
 import ru.practicum.main_service.location.dto.LocationDto;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 import static ru.practicum.main_service.consts.Consts.TIME_FORMAT;
@@ -20,9 +22,9 @@ import static ru.practicum.main_service.consts.Consts.TIME_FORMAT;
 @Getter
 @Setter
 public class EventUpdateAdminDto {
-    private String title;
-    private String annotation;
-    private String description;
+    private @Size(min = 3, max = 120) String title;
+    private @Size(min = 20, max = 2000) String annotation;
+    private @Size(min = 20, max = 7000) String description;
     private int category;
     private LocationDto location;
     private Boolean paid;

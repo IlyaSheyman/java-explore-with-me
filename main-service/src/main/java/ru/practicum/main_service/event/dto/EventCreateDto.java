@@ -25,22 +25,17 @@ import static ru.practicum.main_service.consts.Consts.TIME_FORMAT;
 @NoArgsConstructor
 public class EventCreateDto {
     @NotBlank
-    @Size(min = 3, max = 120)
-    private String title;
+    private @Size(min = 3, max = 120) String title;
 
     @NotBlank
-    @Size(min = 20, max = 2000)
-    private String annotation;
+    private @Size(min = 20, max = 2000) String annotation;
 
     @NotBlank
-    @Size(min = 20, max = 7000)
-    private String description;
+    private @Size(min = 20, max = 7000) String description;
 
     @NotNull
     @Positive
     private int category;
-
-    @NotNull
     private Boolean paid;
 
     @JsonFormat(pattern = TIME_FORMAT)
@@ -52,7 +47,5 @@ public class EventCreateDto {
 
     @NotNull
     private Location location;
-
-    @NotNull
     private Boolean requestModeration;
 }

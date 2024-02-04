@@ -2,7 +2,6 @@ package ru.practicum.main_service.admin;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -25,7 +24,6 @@ import ru.practicum.main_service.compilation.dto.NewCompilationDto;
 import ru.practicum.main_service.compilation.dto.UpdateCompilationRequest;
 import ru.practicum.main_service.event.dto.EventDto;
 import ru.practicum.main_service.event.dto.EventUpdateAdminDto;
-import ru.practicum.main_service.event.dto.EventUpdateDto;
 import ru.practicum.main_service.user.model_and_dto.User;
 import ru.practicum.main_service.user.model_and_dto.UserDto;
 
@@ -50,7 +48,7 @@ public class AdminController {
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(path = "/categories")
-    public Category addCategory(@RequestBody CategoryDto categoryDto) {
+    public Category addCategory(@RequestBody @Valid CategoryDto categoryDto) {
         log.info("Получен запрос на добавление категории");
         return service.addCategory(categoryDto);
     }

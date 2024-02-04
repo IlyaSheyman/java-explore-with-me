@@ -76,6 +76,19 @@ public class UserService {
         event.setEventDate(eventDate);
         event.setCategory(category);
         event.setState(EventState.PENDING);
+
+        int limit = eventDto.getParticipantLimit();
+        event.setParticipantLimit(limit);
+
+        if (eventDto.getPaid() == null) {
+            eventDto.setPaid(false);
+        } else {
+            event.setPaid(eventDto.getPaid());
+        }
+
+        Boolean requestModeration = eventDto.getRequestModeration();
+        event.setRequestModeration(requestModeration == null || requestModeration);
+
         event.setCreatedOn(LocalDateTime.now());
         event.setLocation(location);
 

@@ -10,4 +10,6 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
 
     @Query("SELECT c.name FROM Category c")
     List<String> findAllNames();
+
+    boolean existsByNameIgnoreCase(String name);
 }

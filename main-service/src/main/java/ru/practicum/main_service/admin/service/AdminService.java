@@ -83,14 +83,22 @@ public class AdminService {
     @Transactional
     public Category editCategory(int catId, CategoryDto catDto) {
         if (categoryRepository.findById(catId) != null) {
-            if (categoryRepository.findAllNames().contains(catDto.getName())) {
-                throw new IncorrectRequestException("Некорректный запрос: имя категории должно быть уникальным");
-            } else {
-                Category category = categoryMapper.fromCategoryDto(catDto);
-                category.setId(catId);
-                categoryRepository.save(category);
-                return category;
+            Category previous = categoryRepository.getById(catId);
+
+            Category updated = categoryMapper.fromCategoryDto(catDto);
+            updated.setId(catId);
+
+            if (previous.getName() != catDto.getName()) {
+                if (!categoryRepository.existsByNameIgnoreCase(catDto.getName())) {
+                    throw new ConflictRequestException("Категория с таким именем уже существует.");
+                } else {
+
+                }
             }
+
+
+            categoryRepository.save(updated);
+            return updated;
         } else {
             throw new NotFoundException("Категория с id " + catId + " не найдена");
         }
@@ -135,30 +143,34 @@ public class AdminService {
                                     LocalDateTime rangeEnd,
                                     int from,
                                     int size) {
-        validateTimeRange(rangeStart, rangeEnd);
+
+
         List<Event> allEvents = eventRepository.findAll(PageRequest.of(from / size, size)).toList();
 
-        if (!usersIds.isEmpty() && usersIds != null) {
+        if (rangeStart != null && rangeEnd != null) {
+            validateTimeRange(rangeStart, rangeEnd);
+            allEvents.stream()
+                    .filter(event -> event.getEventDate().isAfter(rangeStart) && event.getEventDate().isBefore(rangeEnd))
+                    .collect(Collectors.toList());
+        }
+
+        if (usersIds != null && !usersIds.isEmpty()) {
             allEvents.stream()
                     .filter(event -> usersIds.contains(event.getInitiator().getId()))
                     .collect(Collectors.toList());
         }
 
-        if (!states.isEmpty() && states != null) {
+        if (states != null && !states.isEmpty()) {
             allEvents.stream()
                     .filter(event -> states.contains(event.getState()))
                     .collect(Collectors.toList());
         }
 
-        if (!categories.isEmpty() && categories != null) {
+        if (categories != null && !categories.isEmpty()) {
             allEvents.stream()
                     .filter(event -> categories.contains(event.getCategory()))
                     .collect(Collectors.toList());
         }
-
-        allEvents.stream()
-                .filter(event -> event.getEventDate().isAfter(rangeStart) && event.getEventDate().isBefore(rangeEnd))
-                .collect(Collectors.toList());
 
         List<EventDto> filteredEvents = allEvents.stream().map(eventMapper::toEventDto).collect(Collectors.toList());
 

@@ -59,8 +59,6 @@ public class EventMapper {
 
     public Event fromEventCreateDto(EventCreateDto dto) {
         return Event.builder()
-                .requestModeration(dto.getRequestModeration())
-                .paid(dto.getPaid())
                 .location(dto.getLocation())
                 .eventDate(dto.getEventDate())
                 .title(dto.getTitle())

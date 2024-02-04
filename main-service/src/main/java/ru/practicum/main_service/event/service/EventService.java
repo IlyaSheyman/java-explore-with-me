@@ -77,13 +77,13 @@ public class EventService {
         statsClient.postStats(httpServletRequest);
         List<Event> allEvents = repository.findAll(PageRequest.of(from / size, size)).toList();
 
-        if (!text.isBlank() || text != null) {
+        if (text != null) {
             allEvents.stream()
                     .filter(event -> event.getAnnotation().contains(text) || event.getDescription().contains(text))
                     .collect(Collectors.toList());
         }
 
-        if (!categories.isEmpty() && categories != null) {
+        if (categories != null && !categories.isEmpty()) {
             allEvents.stream()
                     .filter(event -> categories.contains(event.getCategory().getId()))
                     .collect(Collectors.toList());

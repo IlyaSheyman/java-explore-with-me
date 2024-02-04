@@ -51,7 +51,7 @@ public class ErrorHandler {
                 LocalDateTime.now().format(formatter));
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
         log.warn("409 {}", e.getMessage(), e);
@@ -61,13 +61,12 @@ public class ErrorHandler {
                 LocalDateTime.now().format(formatter));
     }
 
-
-    @ExceptionHandler
+    @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleDataIntegrityViolationException(final DataIntegrityViolationException e) {
+    public ErrorResponse handleIllegalArgumentException(final IllegalArgumentException e) {
         log.warn("409 {}", e.getMessage(), e);
         return new ErrorResponse(e.getMessage(),
-                "DataIntegrityViolationException",
+                "IllegalArgumentException",
                 HttpStatus.BAD_REQUEST.toString(),
                 LocalDateTime.now().format(formatter));
     }
