@@ -12,6 +12,7 @@ import ru.practicum.server.storage.StatisticsRepository;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,30 +47,37 @@ public class StatsService {
     }
 
     public List<StatisticsForListDto> getStats(LocalDateTime start,
-                                               LocalDateTime end,
+                                               LocalDateTime  end,
                                                String[] uris,
                                                boolean unique) {
+
         List<Statistics> allStats = repository.findByTimestampBetween(start, end);
-        List<Statistics> resultStats;
+        List<StatisticsForListDto> resultStats;
 
         if (unique) {
-            resultStats = allStats.stream()
-                    .filter(stat -> Arrays.asList(uris).contains(stat.getUri()))
-                    .filter(stat -> allStats.stream()
-                            .filter(s -> s.getUri().equals(stat.getUri()))
-                            .map(Statistics::getIp)
-                            .distinct()
-                            .count() == 1)
-                    .collect(Collectors.toList());
+            if (uris == null || uris.length == 0) {
+                resultStats = repository.getByCreatedBetweenAndUniqueIp(start, end);
+            } else {
+                resultStats = repository.getByCreatedBetweenAndUriInAndUniqueIp(start, end, uris);
+            }
         } else {
-            resultStats = allStats.stream()
-                    .filter(stat -> Arrays.asList(uris).contains(stat.getUri()))
-                    .collect(Collectors.toList());
+            if (uris == null || uris.length == 0) {
+                resultStats = repository
+                        .findByTimestampBetween(start, end)
+                        .stream()
+                        .map(mapper::toStatForListDto)
+                        .collect(Collectors.toList());
+            } else {
+                resultStats = allStats.stream()
+                        .filter(stat -> Arrays.asList(uris).contains(stat.getUri()))
+                        .map(mapper::toStatForListDto)
+                        .collect(Collectors.toList());
+            }
         }
 
         List<StatisticsForListDto> finalStats = resultStats
                 .stream()
-                .map(mapper::toStatForListDto)
+                .sorted(Comparator.comparingInt(StatisticsForListDto::getHits).reversed())
                 .collect(Collectors.toList());
 
         return finalStats;

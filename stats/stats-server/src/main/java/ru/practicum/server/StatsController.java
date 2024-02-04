@@ -13,7 +13,10 @@ import ru.practicum.dto.StatisticsForListDto;
 import ru.practicum.server.exceptions.StatParametersException;
 import ru.practicum.server.service.StatsService;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Slf4j
@@ -36,16 +39,23 @@ public class StatsController {
 
     @ResponseBody
     @GetMapping("/stats")
-    public List<StatisticsForListDto> getStats(@RequestParam(value = "start") LocalDateTime start,
-                                               @RequestParam(value = "end") LocalDateTime end,
-                                               @RequestParam String[] uris,
-                                               @RequestParam boolean unique) {
+    public List<StatisticsForListDto> getStats(@RequestParam(value = "start") String start,
+                                               @RequestParam(value = "end") String end,
+                                               @RequestParam(value = "uris", required = false) String[] uris,
+                                               @RequestParam(value = "unique", defaultValue = "false") boolean unique) {
         log.info("Получен запрос на получение статистики по посещениям");
 
-
-        if (start.isAfter(LocalDateTime.now()) || end.isAfter(LocalDateTime.now()) || uris.length == 0) {
+        LocalDateTime startTime = null;
+        LocalDateTime endTime = null;
+        try {
+            startTime = LocalDateTime.parse(URLDecoder.decode(start, "UTF-8"),
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            endTime = LocalDateTime.parse(URLDecoder.decode(end, "UTF-8"),
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        } catch (UnsupportedEncodingException e) {
             throw new StatParametersException("Некорректные параметры для получения статистики по посещениям");
         }
-        return service.getStats(start, end, uris, unique);
+
+        return service.getStats(startTime, endTime, uris, unique);
     }
 }
