@@ -18,9 +18,9 @@ import ru.practicum.main_service.event.dto.EventCreateDto;
 import ru.practicum.main_service.event.dto.EventDto;
 import ru.practicum.main_service.event.dto.EventSmallDto;
 import ru.practicum.main_service.event.dto.EventUpdateDto;
-import ru.practicum.main_service.event_request.dto.EventRequestDto;
-import ru.practicum.main_service.event_request.dto.RequestStatusUpdateRequest;
-import ru.practicum.main_service.event_request.dto.RequestStatusUpdateResult;
+import ru.practicum.main_service.event.request.dto.EventRequestDto;
+import ru.practicum.main_service.event.request.dto.RequestStatusUpdateRequest;
+import ru.practicum.main_service.event.request.dto.RequestStatusUpdateResult;
 import ru.practicum.main_service.user.service.UserService;
 
 import javax.validation.Valid;

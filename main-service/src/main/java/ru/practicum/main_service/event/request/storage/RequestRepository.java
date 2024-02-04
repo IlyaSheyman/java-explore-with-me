@@ -1,9 +1,9 @@
-package ru.practicum.main_service.event_request.storage;
+package ru.practicum.main_service.event.request.storage;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
-import ru.practicum.main_service.event_request.model.EventRequest;
-import ru.practicum.main_service.event_request.model.RequestState;
+import ru.practicum.main_service.event.request.model.RequestState;
+import ru.practicum.main_service.event.request.model.EventRequest;
 
 import java.util.List;
 

@@ -22,4 +22,5 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
                         @Param("id") int eventId);
 
     boolean existsByCategoryId(int catId);
+
 }

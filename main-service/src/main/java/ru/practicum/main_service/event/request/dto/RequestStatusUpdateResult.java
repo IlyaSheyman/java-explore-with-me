@@ -1,4 +1,4 @@
-package ru.practicum.main_service.event_request.dto;
+package ru.practicum.main_service.event.request.dto;
 
 import lombok.Getter;
 import lombok.Setter;

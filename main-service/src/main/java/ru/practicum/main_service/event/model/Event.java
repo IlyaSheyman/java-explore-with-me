@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.practicum.main_service.category.model_and_dto.Category;
-import ru.practicum.main_service.event_request.model.EventRequest;
 import ru.practicum.main_service.location.model.Location;
 import ru.practicum.main_service.user.model_and_dto.User;
 
@@ -19,13 +18,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Getter
@@ -84,5 +81,4 @@ public class Event {
     private boolean requestModeration;
 
     private int confirmedRequests;
-
 }
