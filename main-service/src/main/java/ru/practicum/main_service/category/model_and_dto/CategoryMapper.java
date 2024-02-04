@@ -17,4 +17,11 @@ public class CategoryMapper {
                 .name(categoryDto.getName())
                 .build();
     }
+
+    public CategoryBigDto toCategoryBigDto(Category category) {
+        return CategoryBigDto.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .build();
+    }
 }
