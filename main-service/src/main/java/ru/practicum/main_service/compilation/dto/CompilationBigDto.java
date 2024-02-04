@@ -19,6 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 public class CompilationBigDto {
     @Positive
+    @NotNull
     private int id;
     @NotNull
     private boolean pinned;

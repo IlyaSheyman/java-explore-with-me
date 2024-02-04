@@ -1,5 +1,6 @@
 package ru.practicum.main_service.event_request.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,7 +10,10 @@ import ru.practicum.main_service.event_request.model.RequestState;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+
+import static ru.practicum.main_service.consts.Consts.TIME_FORMAT;
 
 @Getter
 @Setter
@@ -17,10 +21,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EventRequestDto {
-    private int id;
+    private @NotNull int id;
+
+    @JsonFormat(pattern = TIME_FORMAT)
     private LocalDateTime created;
-    private int event;
-    private int requester;
+
+    private @NotNull int event;
+    private @NotNull int requester;
     @Enumerated(EnumType.STRING)
-    private RequestState status;
+    private @NotNull RequestState status;
 }

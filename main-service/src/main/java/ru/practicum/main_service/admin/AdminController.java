@@ -21,7 +21,7 @@ import ru.practicum.main_service.category.model_and_dto.Category;
 import ru.practicum.main_service.category.model_and_dto.CategoryDto;
 import ru.practicum.main_service.compilation.dto.CompilationBigDto;
 import ru.practicum.main_service.compilation.dto.NewCompilationDto;
-import ru.practicum.main_service.compilation.dto.UpdateCompilationRequest;
+import ru.practicum.main_service.compilation.dto.UpdateCompilationDto;
 import ru.practicum.main_service.event.dto.EventDto;
 import ru.practicum.main_service.event.dto.EventUpdateAdminDto;
 import ru.practicum.main_service.user.model_and_dto.User;
@@ -63,7 +63,7 @@ public class AdminController {
     @ResponseBody
     @PatchMapping(path = "/categories/{catId}")
     public Category editCategory(@PathVariable int catId,
-                                 @RequestBody CategoryDto categoryDto) {
+                                 @RequestBody @Valid CategoryDto categoryDto) {
         log.info("Получен запрос на изменение категории");
         return service.editCategory(catId, categoryDto);
     }
@@ -126,14 +126,14 @@ public class AdminController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(path = "/compilations")
-    public CompilationBigDto addCompilation(@RequestBody NewCompilationDto dto) {
+    public CompilationBigDto addCompilation(@RequestBody @Valid NewCompilationDto dto) {
         log.info("Получен запрос на добавление новой подборки событий");
         return service.addCompilation(dto);
     }
 
     @PatchMapping(path = "/compilations/{compId}")
     public CompilationBigDto updateCompilation(@PathVariable int compId,
-                                               @RequestBody @Valid UpdateCompilationRequest dto) {
+                                               @RequestBody @Valid UpdateCompilationDto dto) {
         log.info("Получен запрос на обновление подборки событий");
         return service.updateCompilation(compId, dto);
     }

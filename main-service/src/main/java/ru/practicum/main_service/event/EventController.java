@@ -1,13 +1,12 @@
 package ru.practicum.main_service.event;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.main_service.event.dto.EventDto;
 import ru.practicum.main_service.event.dto.EventSmallDto;
@@ -22,14 +21,16 @@ import static ru.practicum.main_service.consts.Consts.TIME_FORMAT;
 
 @RestController
 @Slf4j
+@RequiredArgsConstructor
 @RequestMapping(path = "/events")
-@Validated
 public class EventController {
 
-    private final EventService service;
+    protected final EventService service;
 
-    public EventController(EventService service) {
-        this.service = service;
+    @GetMapping("/{id}")
+    private EventDto getEventById(@PathVariable int id, HttpServletRequest request) {
+        log.info("Получен запрос на получение события по идентификатору");
+        return service.getEventById(id, request);
     }
 
     @GetMapping
@@ -53,12 +54,5 @@ public class EventController {
         return service.getAllEvents(
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort,
                 from, size, httpServletRequest);
-    }
-
-    @ResponseBody
-    @GetMapping("/{id}")
-    private EventDto getEventById(@PathVariable int id, HttpServletRequest request) {
-        log.info("Получен запрос на получение события по идентификатору");
-        return service.getEventById(id, request);
     }
 }

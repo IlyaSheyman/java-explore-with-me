@@ -101,8 +101,12 @@ public class UserService {
         if (location != null) {
             double lat = location.getLat();
             double lon = location.getLon();
-            return locationRepository.getByLatAndLon(lat, lon)
-                    .orElse(locationRepository.save(location));
+            Location loc = locationRepository.getByLatAndLon(lat, lon);
+            if (loc != null) {
+                return loc;
+            } else {
+                return locationRepository.save(location);
+            }
         } else {
             return null;
         }
@@ -217,8 +221,6 @@ public class UserService {
 
     @Transactional
     public EventRequestDto addRequest(int userId, int eventId) {
-        EventRequestDto requestDto = new EventRequestDto();
-
         User requester = getUserById(userId);
         Event event = getEventById(eventId);
 
@@ -231,6 +233,7 @@ public class UserService {
         if (requestRepository.existsByRequester_IdAndEvent_Id(userId, eventId)) {
             throw new ConflictRequestException("Запрос этого пользователя на участие в этом мероприятии уже существует");
         }
+
 
         EventRequest request = EventRequest.builder()
                 .created(LocalDateTime.now())
@@ -286,11 +289,8 @@ public class UserService {
     }
 
     @Transactional
-    public EventRequestDto cancelRequest(int userId, int requestId, EventRequestDto dto) {
+    public EventRequestDto cancelRequest(int userId, int requestId) {
         EventRequest request = getRequestById(requestId);
-
-        if (request.getStatus().equals(RequestState.CANCELED)) { return dto; }
-
         User requester = getUserById(userId);
 
         if (!request.getRequester().equals(requester)) {
@@ -353,7 +353,7 @@ public class UserService {
     }
 
     private void checkRequestsLimit(int requestsNumber, int participantLimit) {
-        if (participantLimit < requestsNumber) {
+        if (participantLimit <= requestsNumber) {
             throw new ConflictRequestException("Достигнут лимит по количеству участников, " +
                     "поэтому заявки не могут быть подтверждены");
         }

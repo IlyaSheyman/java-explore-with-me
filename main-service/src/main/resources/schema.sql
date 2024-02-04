@@ -35,11 +35,10 @@ CREATE TABLE IF NOT EXISTS events (
   request_moderation BOOLEAN NOT NULL,
   state VARCHAR(50),
   views BIGINT NOT NULL,
-  location_id BIGINT NOT NULL,
+  location_id BIGINT NOT NULL REFERENCES location (id),
   confirmed_requests INTEGER NOT NULL,
   FOREIGN KEY (category_id) REFERENCES categories (id),
-  FOREIGN KEY (initiator_id) REFERENCES users (id),
-  FOREIGN KEY (location_id) REFERENCES location (id)
+  FOREIGN KEY (initiator_id) REFERENCES users (id)
 );
 
 

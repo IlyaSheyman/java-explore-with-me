@@ -14,7 +14,7 @@ import ru.practicum.main_service.category.storage.CategoryRepository;
 import ru.practicum.main_service.compilation.dto.CompilationBigDto;
 import ru.practicum.main_service.compilation.dto.CompilationMapper;
 import ru.practicum.main_service.compilation.dto.NewCompilationDto;
-import ru.practicum.main_service.compilation.dto.UpdateCompilationRequest;
+import ru.practicum.main_service.compilation.dto.UpdateCompilationDto;
 import ru.practicum.main_service.compilation.model.Compilation;
 import ru.practicum.main_service.compilation.storage.CompilationRepository;
 import ru.practicum.main_service.event.dto.EventDto;
@@ -28,6 +28,8 @@ import ru.practicum.main_service.exception.ConflictRequestException;
 import ru.practicum.main_service.exception.IncorrectRequestException;
 import ru.practicum.main_service.exception.NotFoundException;
 import ru.practicum.main_service.location.dto.LocationDto;
+import ru.practicum.main_service.location.dto.LocationMapper;
+import ru.practicum.main_service.location.model.Location;
 import ru.practicum.main_service.location.storage.LocationRepository;
 import ru.practicum.main_service.user.model_and_dto.User;
 import ru.practicum.main_service.user.model_and_dto.UserDto;
@@ -58,11 +60,12 @@ public class AdminService {
     private final CompilationMapper compilationMapper;
 
     private final LocationRepository locationRepository;
+    private final LocationMapper locationMapper;
 
     @Transactional
     public Category addCategory(CategoryDto categoryDto) {
         if (categoryRepository.findAllNames().contains(categoryDto.getName())) {
-            throw new IncorrectRequestException("Некорректный запрос: имя категории должно быть уникальным");
+            throw new ConflictRequestException("Некорректный запрос: имя категории должно быть уникальным");
         } else {
             Category category = categoryMapper.fromCategoryDto(categoryDto);
             categoryRepository.save(category);
@@ -72,12 +75,13 @@ public class AdminService {
 
     @Transactional
     public void deleteCategory(int catId) {
-        if (categoryRepository.findById(catId) != null) {
+        if (eventRepository.existsByCategoryId(catId)) {
+            throw new ConflictRequestException("Нельзя удалить категорию, к которой привязаны события");
+        } else if (categoryRepository.findById(catId) != null) {
             categoryRepository.deleteById(catId);
         } else {
             throw new NotFoundException("Категория с id " + catId + " не найдена");
         }
-        //TODO добавить проверку на то, что с категорией не связан ни один ивент
     }
 
     @Transactional
@@ -88,14 +92,13 @@ public class AdminService {
             Category updated = categoryMapper.fromCategoryDto(catDto);
             updated.setId(catId);
 
-            if (previous.getName() != catDto.getName()) {
-                if (!categoryRepository.existsByNameIgnoreCase(catDto.getName())) {
+            if (!previous.getName().equals(updated.getName())) {
+                if (categoryRepository.existsByNameIgnoreCase(catDto.getName())) {
                     throw new ConflictRequestException("Категория с таким именем уже существует.");
                 } else {
-
+                    updated.setName(catDto.getName());
                 }
             }
-
 
             categoryRepository.save(updated);
             return updated;
@@ -121,7 +124,7 @@ public class AdminService {
     public User addUser(UserDto userDto) {
         String email = userDto.getEmail();
         if (userRepository.findByEmail(email) != null) {
-            throw new IncorrectRequestException("Пользователь с email " + email + " уже существует");
+            throw new ConflictRequestException("Пользователь с email " + email + " уже существует");
         } else {
             return userRepository.save(userMapper.fromUserDto(userDto));
         }
@@ -188,8 +191,11 @@ public class AdminService {
     @Transactional
     public CompilationBigDto addCompilation(NewCompilationDto dto) {
         checkTitle(dto.getTitle());
-        Compilation compilation = compilationMapper.fromCompilationNewDto(dto); 
-        compilation.setEvents(eventRepository.findAllById(dto.getEvents()));
+        Compilation compilation = compilationMapper.fromCompilationNewDto(dto);
+
+        if (dto.getEvents() != null) {
+            compilation.setEvents(eventRepository.findAllById(dto.getEvents()));
+        }
 
         compilationRepository.save(compilation);
 
@@ -213,12 +219,15 @@ public class AdminService {
     }
 
     @Transactional
-    public CompilationBigDto updateCompilation(int compId, UpdateCompilationRequest dto) {
+    public CompilationBigDto updateCompilation(int compId, UpdateCompilationDto dto) {
         checkTitle(dto.getTitle());
 
         Compilation compilation = getCompilation(compId);
         compilation.setTitle(dto.getTitle());
-        compilation.setPinned(dto.getPinned());
+
+        if (dto.getPinned() != null) {
+            compilation.setPinned(dto.getPinned());
+        }
 
         List<Integer> eventIds = dto.getEvents();
 
@@ -244,7 +253,10 @@ public class AdminService {
 
         if (event.getState().equals(EventState.PUBLISHED)) {
             throw new ConflictRequestException("Событие уже опубликовано");
+        } else if (event.getState().equals(EventState.CANCELED)) {
+            throw new ConflictRequestException("Событие отменено, его невозможно опубликовать");
         }
+
         checkAdminTime(event.getEventDate());
         checkAdminTime(updateAdminDto.getEventDate());
         changeState(event, updateAdminDto.getStateAction());
@@ -273,8 +285,15 @@ public class AdminService {
         if (dto.getCategory() != 0)
             event.setCategory(userService.getCategoryById(dto.getCategory()));
 
-        if (dto.getLocation() != null)
-            event.setLocation(locationRepository.findByLatAndLon(locDto.getLat(), locDto.getLon()));
+        if (dto.getLocation() != null) {
+            Location location = locationRepository.getByLatAndLon(locDto.getLat(), locDto.getLon());
+
+            if (location != null) {
+                event.setLocation(location);
+            } else {
+                event.setLocation(locationRepository.save(locationMapper.fromLocationDto(locDto)));
+            }
+        }
 
         if (dto.getPaid() != null)
             event.setPaid(dto.getPaid());

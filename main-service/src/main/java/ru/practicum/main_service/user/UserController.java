@@ -82,11 +82,11 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}/requests/{requestId}/cancel")
+    @ResponseStatus(HttpStatus.OK)
     public EventRequestDto cancelRequest(@PathVariable int userId,
-                                         @PathVariable int requestId,
-                                         @RequestBody @Validated EventRequestDto dto) {
+                                         @PathVariable int requestId) {
         log.info("Получен запрос на отмену запроса на участие в событии");
-        return service.cancelRequest(userId, requestId, dto);
+        return service.cancelRequest(userId, requestId);
     }
 
     @GetMapping("/{userId}/requests")

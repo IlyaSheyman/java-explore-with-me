@@ -1,5 +1,7 @@
 package ru.practicum.main_service.event.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.client.StatsClient;
@@ -20,6 +22,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class EventService {
 
     private final EventRepository repository;
@@ -27,13 +31,6 @@ public class EventService {
 
     private final AdminService adminService;
     private final StatsClient statsClient;
-
-    public EventService(EventRepository repository, EventMapper mapper, AdminService adminService, StatsClient statsClient) {
-        this.repository = repository;
-        this.mapper = mapper;
-        this.adminService = adminService;
-        this.statsClient = statsClient;
-    }
 
     public EventDto getEventById(int id, HttpServletRequest request) {
         statsClient.postStats(request);
@@ -128,6 +125,4 @@ public class EventService {
 
         return filteredEvents;
     }
-
-
 }

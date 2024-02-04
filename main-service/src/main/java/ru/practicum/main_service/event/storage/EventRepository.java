@@ -20,4 +20,6 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     @Transactional
     int updateViewsById(@Param("views") int views,
                         @Param("id") int eventId);
+
+    boolean existsByCategoryId(int catId);
 }

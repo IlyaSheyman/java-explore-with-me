@@ -16,21 +16,27 @@ public class CompilationMapper {
     }
 
     public Compilation fromCompilationNewDto(NewCompilationDto dto) {
+        Boolean pinned = (dto.getPinned() != null) ? dto.getPinned() : false;
+
         return Compilation.builder()
                 .title(dto.getTitle())
-                .pinned(dto.getPinned())
+                .pinned(pinned)
                 .build();
     }
 
     public CompilationBigDto toCompilationBigDto(Compilation compilation) {
-        return CompilationBigDto.builder()
+        CompilationBigDto dto = CompilationBigDto.builder()
                 .id(compilation.getId())
-                .events(compilation
-                        .getEvents().stream()
-                        .map(eventMapper::toEventSmallDto)
-                        .collect(Collectors.toList()))
                 .title(compilation.getTitle())
                 .pinned(compilation.isPinned())
                 .build();
+        if (compilation.getEvents() != null) {
+            dto.setEvents(compilation
+                    .getEvents().stream()
+                    .map(eventMapper::toEventSmallDto)
+                    .collect(Collectors.toList()));
+        }
+
+        return dto;
     }
 }
