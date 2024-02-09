@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import ru.practicum.client.StatsClient;
 import ru.practicum.dto.StatisticsForListDto;
 import ru.practicum.main_service.admin.service.AdminService;
-import ru.practicum.main_service.admin.service.AdminServiceImpl;
 import ru.practicum.main_service.event.comment.dto.CommentDto;
 import ru.practicum.main_service.event.comment.dto.CommentMapper;
 import ru.practicum.main_service.event.comment.dto.CommentNewDto;

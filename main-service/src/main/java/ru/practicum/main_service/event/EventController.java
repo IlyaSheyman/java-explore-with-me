@@ -3,7 +3,6 @@ package ru.practicum.main_service.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -23,7 +22,6 @@ import ru.practicum.main_service.event.comment.dto.CommentNewDto;
 import ru.practicum.main_service.event.dto.EventDto;
 import ru.practicum.main_service.event.dto.EventSmallDto;
 import ru.practicum.main_service.event.service.EventService;
-import ru.practicum.main_service.event.service.EventServiceImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;

@@ -19,14 +19,10 @@ import ru.practicum.dto.StatisticsDto;
 import ru.practicum.dto.StatisticsForListDto;
 
 import javax.servlet.http.HttpServletRequest;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.DataFormatException;
 
 @Service
 public class StatsClient {

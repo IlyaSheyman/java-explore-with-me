@@ -23,7 +23,6 @@ import ru.practicum.main_service.event.request.dto.EventRequestDto;
 import ru.practicum.main_service.event.request.dto.RequestStatusUpdateRequest;
 import ru.practicum.main_service.event.request.dto.RequestStatusUpdateResult;
 import ru.practicum.main_service.user.service.UserService;
-import ru.practicum.main_service.user.service.UserServiceImpl;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;

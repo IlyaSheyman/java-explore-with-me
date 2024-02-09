@@ -5,10 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.practicum.main_service.category.model_and_dto.Category;
 import ru.practicum.main_service.category.model_and_dto.CategoryDto;
 import ru.practicum.main_service.event.model.EventState;
-import ru.practicum.main_service.user.model_and_dto.User;
 import ru.practicum.main_service.user.model_and_dto.UserDto;
 
 import java.time.LocalDateTime;
