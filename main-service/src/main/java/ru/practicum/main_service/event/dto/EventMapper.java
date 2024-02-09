@@ -3,7 +3,7 @@ package ru.practicum.main_service.event.dto;
 import org.springframework.stereotype.Component;
 import ru.practicum.main_service.category.model_and_dto.CategoryMapper;
 import ru.practicum.main_service.event.model.Event;
-import ru.practicum.main_service.event_request.model.EventRequest;
+import ru.practicum.main_service.event.request.model.EventRequest;
 import ru.practicum.main_service.user.model_and_dto.UserMapper;
 
 import java.util.ArrayList;

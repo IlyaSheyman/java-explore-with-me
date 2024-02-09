@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import ru.practicum.main_service.location.model.Location;
 
 import javax.validation.constraints.Future;
@@ -23,6 +24,7 @@ import static ru.practicum.main_service.consts.Consts.TIME_FORMAT;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class EventCreateDto {
     @NotBlank
     private @Size(min = 3, max = 120) String title;
@@ -48,4 +50,5 @@ public class EventCreateDto {
     @NotNull
     private Location location;
     private Boolean requestModeration;
+
 }

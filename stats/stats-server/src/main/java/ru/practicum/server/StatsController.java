@@ -2,6 +2,7 @@ package ru.practicum.server;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,6 +13,7 @@ import ru.practicum.dto.StatisticsDto;
 import ru.practicum.dto.StatisticsForListDto;
 import ru.practicum.server.exceptions.StatParametersException;
 import ru.practicum.server.service.StatsService;
+import ru.practicum.server.service.StatsServiceImpl;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -23,17 +25,18 @@ import java.util.List;
 @RestController
 public class StatsController {
 
+    @Qualifier("StatsServiceImpl")
     private final StatsService service;
 
     @Autowired
-    public StatsController(StatsService service) {
+    public StatsController(StatsServiceImpl service) {
         this.service = service;
     }
 
     @ResponseBody
     @PostMapping("/hit")
     public StatisticsDto addStats(@RequestBody StatisticsDto stats) {
-        log.info("Получен запрос на сохранение информации о запросе пользователя");
+        log.info("Request to save info about user's request has been received.");
         return service.addStats(stats);
     }
 
@@ -43,7 +46,7 @@ public class StatsController {
                                                @RequestParam(value = "end") String end,
                                                @RequestParam(value = "uris", required = false) String[] uris,
                                                @RequestParam(value = "unique", defaultValue = "false") boolean unique) {
-        log.info("Получен запрос на получение статистики по посещениям");
+        log.info("Request to get stats has been received.");
 
         LocalDateTime startTime = null;
         LocalDateTime endTime = null;
@@ -53,7 +56,7 @@ public class StatsController {
             endTime = LocalDateTime.parse(URLDecoder.decode(end, "UTF-8"),
                     DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         } catch (UnsupportedEncodingException e) {
-            throw new StatParametersException("Некорректные параметры для получения статистики по посещениям");
+            throw new StatParametersException("Incorrect parameters of get stats request");
         }
 
         return service.getStats(startTime, endTime, uris, unique);

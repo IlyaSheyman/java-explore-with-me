@@ -1,4 +1,4 @@
-package ru.practicum.main_service.event_request.dto;
+package ru.practicum.main_service.event.request.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.practicum.main_service.event_request.model.RequestState;
+import ru.practicum.main_service.event.request.model.RequestState;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;

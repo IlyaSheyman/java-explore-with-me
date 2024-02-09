@@ -1,7 +1,7 @@
-package ru.practicum.main_service.event_request.dto;
+package ru.practicum.main_service.event.request.dto;
 
 import org.springframework.stereotype.Component;
-import ru.practicum.main_service.event_request.model.EventRequest;
+import ru.practicum.main_service.event.request.model.EventRequest;
 
 @Component
 public class EventRequestMapper {

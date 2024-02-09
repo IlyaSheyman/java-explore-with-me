@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import ru.practicum.main_service.event.model.StateAction;
 import ru.practicum.main_service.location.model.Location;
 
@@ -20,6 +21,7 @@ import static ru.practicum.main_service.consts.Consts.TIME_FORMAT;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class EventUpdateDto {
     private @Size(min = 3, max = 120) String title;
     private @Size(min = 20, max = 2000) String annotation;

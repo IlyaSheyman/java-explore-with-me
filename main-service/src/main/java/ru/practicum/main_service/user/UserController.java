@@ -2,6 +2,7 @@ package ru.practicum.main_service.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,9 +19,9 @@ import ru.practicum.main_service.event.dto.EventCreateDto;
 import ru.practicum.main_service.event.dto.EventDto;
 import ru.practicum.main_service.event.dto.EventSmallDto;
 import ru.practicum.main_service.event.dto.EventUpdateDto;
-import ru.practicum.main_service.event_request.dto.EventRequestDto;
-import ru.practicum.main_service.event_request.dto.RequestStatusUpdateRequest;
-import ru.practicum.main_service.event_request.dto.RequestStatusUpdateResult;
+import ru.practicum.main_service.event.request.dto.EventRequestDto;
+import ru.practicum.main_service.event.request.dto.RequestStatusUpdateRequest;
+import ru.practicum.main_service.event.request.dto.RequestStatusUpdateResult;
 import ru.practicum.main_service.user.service.UserService;
 
 import javax.validation.Valid;
@@ -34,6 +35,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
+    @Qualifier("UserServiceImpl")
     private final UserService service;
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -41,24 +43,28 @@ public class UserController {
     @PostMapping("/{id}/events")
     public EventDto createEvent(@PathVariable(value = "id") int userId,
                                 @RequestBody @Valid EventCreateDto eventDto) {
-        log.info("Получен запрос на добавление нового мероприятия");
+        log.info("Request to create event has been received. UserId: {}, Event dto: {}", userId, eventDto.toString());
+
         return service.createEvent(userId, eventDto);
     }
 
     @ResponseBody
     @GetMapping("/{id}/events")
     public List<EventSmallDto> getEventsByInitiator(@PathVariable int id,
-                                               @RequestParam(value = "from", defaultValue = "0") @Min(0) int from,
-                                               @RequestParam(value = "size", defaultValue = "10") @Min(1) int size) {
-        log.info("Получен запрос на получение событий, добавленных текущим пользователем");
+                                                    @RequestParam(value = "from", defaultValue = "0") @Min(0) int from,
+                                                    @RequestParam(value = "size", defaultValue = "10") @Min(1) int size) {
+        log.info("Request to get events added by the initiator has been received. InitiatorId: {}. From: {}, Size: {}",
+                id, from, size);
+
         return service.getEventsByUser(id, from, size);
     }
 
     @ResponseBody
     @GetMapping("/{userId}/events/{eventId}")
     public EventDto getEventByInitiator(@PathVariable int userId,
-                                    @PathVariable int eventId) {
-        log.info("Получен запрос на получение полной информации о событии, добавленном текущим пользователем");
+                                        @PathVariable int eventId) {
+        log.info("Request to get complete information about an event added by the current user has been received. " +
+                "UserId: {}, EventId: {}.", userId, eventId);
 
         return service.getEventByInitiator(userId, eventId);
     }
@@ -66,9 +72,9 @@ public class UserController {
     @ResponseBody
     @PatchMapping("/{userId}/events/{eventId}")
     public EventDto changeEvent(@PathVariable int userId,
-                            @PathVariable int eventId,
-                            @RequestBody @Valid EventUpdateDto eventDto) {
-        log.info("Получен запрос на изменение события добавленного текущим пользователем");
+                                @PathVariable int eventId,
+                                @RequestBody @Valid EventUpdateDto eventDto) {
+        log.info("Request to change event has been received. UserId: {}, EventId: {}.", userId, eventId);
 
         return service.changeEvent(userId, eventId, eventDto);
     }
@@ -77,7 +83,8 @@ public class UserController {
     @PostMapping("/{userId}/requests")
     public EventRequestDto addRequest(@PathVariable int userId,
                                       @RequestParam int eventId) {
-        log.info("Получен запрос на создание нового запроса на участие в событии");
+        log.info("Request to add new event request has been received. UserId: {}, EventId: {}.", userId, eventId);
+
         return service.addRequest(userId, eventId);
     }
 
@@ -85,22 +92,28 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public EventRequestDto cancelRequest(@PathVariable int userId,
                                          @PathVariable int requestId) {
-        log.info("Получен запрос на отмену запроса на участие в событии");
+        log.info("Request to cancel event request has been received. UserId: {}, RequestId: {}.",
+                userId, requestId);
+
         return service.cancelRequest(userId, requestId);
     }
 
     @GetMapping("/{userId}/requests")
     public List<EventRequestDto> getAllUserRequests(@PathVariable int userId,
-                                   @RequestParam(value = "from", defaultValue = "0") @Min(0) int from,
-                                   @RequestParam(value = "size", defaultValue = "10") @Min(1) int size) {
-        log.info("Получен запрос на получение информации о заявках текущего пользователя на участие в событиях");
+                                                    @RequestParam(value = "from", defaultValue = "0") @Min(0) int from,
+                                                    @RequestParam(value = "size", defaultValue = "10") @Min(1) int size) {
+        log.info("Request to get information about the user's event requests has been received. " +
+                "UserId: {}. From: {}, Size: {}", userId, from, size);
+
         return service.getAllUserRequests(userId, from, size);
     }
 
     @GetMapping("/{userId}/events/{eventId}/requests")
     public List<EventRequestDto> getUserRequestsByEvent(@PathVariable int userId,
-                                @PathVariable int eventId) {
-        log.info("Получен запрос на получение информации о запросах на участие в событии");
+                                                        @PathVariable int eventId) {
+        log.info("Request to get information about the user's event requests by specific event has been received. " +
+                "UserId: {}. EventId: {}", userId, eventId);
+
         return service.getUserRequestsByEvent(userId, eventId);
     }
 
@@ -108,7 +121,8 @@ public class UserController {
     public RequestStatusUpdateResult changeRequestStatus(@PathVariable int userId,
                                                          @PathVariable int eventId,
                                                          @RequestBody RequestStatusUpdateRequest request) {
-        log.info("Получен запрос на изменение статуса заявок на участие в событии текущего пользователя");
+        log.info("Request to change the status of event request has been received. " +
+                "UserId: {}, EventId: {}, Request: {}", userId, eventId, request.toString());
         return service.changeRequestStatus(userId, eventId, request);
     }
 }
