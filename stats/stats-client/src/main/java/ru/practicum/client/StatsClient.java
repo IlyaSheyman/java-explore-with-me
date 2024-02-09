@@ -53,9 +53,9 @@ public class StatsClient {
     }
 
     public List<StatisticsForListDto> getStats(LocalDateTime start,
-                                                               LocalDateTime end,
-                                                               String[] uris,
-                                                               boolean unique) {
+                                               LocalDateTime end,
+                                               String[] uris,
+                                               boolean unique) {
         if (start.isAfter(end)) {
             throw new RuntimeException("Начало не может быть после конца");
         }

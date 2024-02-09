@@ -189,7 +189,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void validateTimeRange(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
-       if (rangeEnd.isBefore(rangeStart)) {
+        if (rangeEnd.isBefore(rangeStart)) {
             throw new IncorrectRequestException("End of time period before start");
         } else if (rangeEnd.equals(rangeStart)) {
             throw new IncorrectRequestException("The end and the start are the same");

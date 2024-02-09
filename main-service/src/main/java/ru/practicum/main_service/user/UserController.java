@@ -103,7 +103,7 @@ public class UserController {
                                                     @RequestParam(value = "from", defaultValue = "0") @Min(0) int from,
                                                     @RequestParam(value = "size", defaultValue = "10") @Min(1) int size) {
         log.info("Request to get information about the user's event requests has been received. " +
-                        "UserId: {}. From: {}, Size: {}", userId, from, size);
+                "UserId: {}. From: {}, Size: {}", userId, from, size);
 
         return service.getAllUserRequests(userId, from, size);
     }

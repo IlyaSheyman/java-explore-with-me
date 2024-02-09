@@ -28,8 +28,8 @@ public class CompilationsController {
 
     @GetMapping
     public List<CompilationBigDto> getAllCompilations(@RequestParam(value = "pinned", defaultValue = "false") boolean pinned,
-                                                   @RequestParam(value = "from", defaultValue = "0") @Min(0) int from,
-                                                   @RequestParam(value = "size", defaultValue = "10") @Min(1) int size) {
+                                                      @RequestParam(value = "from", defaultValue = "0") @Min(0) int from,
+                                                      @RequestParam(value = "size", defaultValue = "10") @Min(1) int size) {
         log.info("Request to get compilations has been received. IsPinned: {}, From: {}, Size: {}", pinned, from, size);
 
         return service.getAllCompilations(pinned, from, size);

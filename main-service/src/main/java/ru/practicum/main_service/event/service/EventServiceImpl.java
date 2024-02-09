@@ -56,7 +56,7 @@ public class EventServiceImpl implements EventService {
         if (!event.getState().equals(EventState.PUBLISHED)) {
             throw new NotFoundException("Event with id " + id + " not found");
         }
-        
+
         int uniqueViews = getViews(id);
         event.setViews(uniqueViews);
         updateViewsByEventId(id, uniqueViews);
@@ -73,7 +73,7 @@ public class EventServiceImpl implements EventService {
         List<StatisticsForListDto> response = statsClient.getStats(
                 LocalDateTime.now().minusYears(2),
                 LocalDateTime.now(),
-                new String[] {"/events/" + eventId},
+                new String[]{"/events/" + eventId},
                 true);
 
         return !response.isEmpty() ? response.get(0).getHits() : 0;

@@ -36,7 +36,7 @@ public class CategoryController {
     @ResponseBody
     @GetMapping
     public List<CategoryBigDto> getCategories(@RequestParam(value = "from", defaultValue = "0") @Min(0) int from,
-                                        @RequestParam(value = "size", defaultValue = "10") @Min(1) int size) {
+                                              @RequestParam(value = "size", defaultValue = "10") @Min(1) int size) {
         log.info("Request to get all categories has been received. From: {}, Size: {}", from, size);
 
         return service.getCategories(from, size).stream().map(mapper::toCategoryBigDto).collect(Collectors.toList());

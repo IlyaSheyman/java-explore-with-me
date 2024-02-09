@@ -108,22 +108,22 @@ public class AdminController {
                                     @RequestParam(value = "states", required = false) ArrayList<String> states,
                                     @RequestParam(value = "categories", required = false) ArrayList<Integer> categories,
                                     @RequestParam(value = "rangeStart", required = false)
-                                        @DateTimeFormat(pattern = TIME_FORMAT) LocalDateTime rangeStart,
+                                    @DateTimeFormat(pattern = TIME_FORMAT) LocalDateTime rangeStart,
                                     @RequestParam(value = "rangeEnd", required = false)
-                                        @DateTimeFormat(pattern = TIME_FORMAT) LocalDateTime rangeEnd,
+                                    @DateTimeFormat(pattern = TIME_FORMAT) LocalDateTime rangeEnd,
                                     @RequestParam(value = "from", defaultValue = "0", required = false) @Min(0) int from,
                                     @RequestParam(value = "size", defaultValue = "10", required = false) @Min(1) int size) {
         log.info("Request to get complete information about all events has been received. " +
-                "UsersIds: {}, " +
-                "States: {}, " +
-                "Categories: {}, " +
-                "RangeStart: {}, " +
-                "RangeEnd: {}," +
-                "From: {}, " +
-                "Size: {}",
+                        "UsersIds: {}, " +
+                        "States: {}, " +
+                        "Categories: {}, " +
+                        "RangeStart: {}, " +
+                        "RangeEnd: {}," +
+                        "From: {}, " +
+                        "Size: {}",
                 usersIds, states, categories, rangeStart, rangeEnd, from, size);
 
-        return service.getEvents(usersIds,states, categories, rangeStart, rangeEnd, from, size);
+        return service.getEvents(usersIds, states, categories, rangeStart, rangeEnd, from, size);
     }
 
     @ResponseBody
