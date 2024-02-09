@@ -37,7 +37,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class UserService {
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
@@ -48,11 +48,11 @@ public class UserService {
     private final EventMapper eventMapper;
     private final EventRequestMapper requestMapper;
 
-    public UserService(UserRepository userRepository,
-                       CategoryRepository categoryRepository,
-                       EventRepository eventRepository,
-                       LocationRepository locationRepository,
-                       RequestRepository requestRepository, EventMapper eventMapper, EventRequestMapper requestMapper) {
+    public UserServiceImpl(UserRepository userRepository,
+                           CategoryRepository categoryRepository,
+                           EventRepository eventRepository,
+                           LocationRepository locationRepository,
+                           RequestRepository requestRepository, EventMapper eventMapper, EventRequestMapper requestMapper) {
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.eventRepository = eventRepository;
@@ -62,6 +62,7 @@ public class UserService {
         this.requestMapper = requestMapper;
     }
 
+    @Override
     @Transactional
     public EventDto createEvent(int userId, EventCreateDto eventDto) {
         checkEventDate(eventDto.getEventDate());
@@ -97,6 +98,7 @@ public class UserService {
         return eventMapper.toEventDto(eventWithId);
     }
 
+    @Override
     public Location getLocation(Location location) {
         if (location != null) {
             double lat = location.getLat();
@@ -114,24 +116,26 @@ public class UserService {
 
     private void checkEventDate(LocalDateTime eventDate) {
         if (eventDate.isBefore(LocalDateTime.now())) {
-            throw new IncorrectRequestException("Ивент не может быть раньше " + LocalDateTime.now());
+            throw new IncorrectRequestException("Event can not be earlier then " + LocalDateTime.now());
         } else if (eventDate.isBefore(LocalDateTime.now().plusHours(3))) {
-            throw new IncorrectRequestException("Ивент должен быть минимум через 3 часа");
+            throw new IncorrectRequestException("The event must be in at least 3 hours");
         }
     }
 
     private User getUserById(int userId) {
         return userRepository
                 .findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
+                .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
     }
 
+    @Override
     public Category getCategoryById(int id) {
         return categoryRepository
                 .findById(id)
-                .orElseThrow(() -> new NotFoundException("Категория с id " + id + " не найдена"));
+                .orElseThrow(() -> new NotFoundException("Category with id " + id + " not found"));
     }
 
+    @Override
     public List<EventSmallDto> getEventsByUser(int userId, int from, int size) {
         List<Event> events = eventRepository
                 .getByInitiator(
@@ -147,17 +151,19 @@ public class UserService {
         return eventsDto;
     }
 
+    @Override
     public EventDto getEventByInitiator(int userId, int eventId) {
         User initiator = getUserById(userId);
         Event event = eventRepository.getByInitiatorAndId(initiator, eventId);
 
         if (event == null) {
-            throw new NotFoundException("Событие с userId " + userId + " не найдено");
+            throw new NotFoundException("Event with userId " + userId + " not found");
         }
 
         return eventMapper.toEventDto(event);
     }
 
+    @Override
     @Transactional
     public EventDto changeEvent(int userId, int eventId, EventUpdateDto eventDto) {
         LocalDateTime newEventTime = eventDto.getEventDate();
@@ -169,12 +175,12 @@ public class UserService {
         Event event = eventRepository.getByInitiatorAndId(initiator, eventId);
 
         if (event == null) {
-            throw new NotFoundException("Событие с userId " + userId + " не найдено");
+            throw new NotFoundException("Event with userId " + userId + " not found");
         }
 
         EventState state = event.getState();
         if (state.equals(EventState.PUBLISHED)) {
-            throw new ConflictRequestException("Изменить можно только события в состоянии ожидания модерации");
+            throw new ConflictRequestException("Only events with pending moderation can be changed");
         }
         Event updated = updateEvent(event, eventDto);
 
@@ -191,7 +197,8 @@ public class UserService {
         return eventMapper.toEventDto(eventRepository.save(updated));
     }
 
-    private Event updateEvent(Event event, EventUpdateDto dto) {
+    @Override
+    public Event updateEvent(Event event, EventUpdateDto dto) {
         if (dto.getTitle() != null) event.setTitle(dto.getTitle());
         if (dto.getEventDate() != null) event.setEventDate(dto.getEventDate());
         if (dto.getAnnotation() != null) event.setAnnotation(dto.getAnnotation());
@@ -203,7 +210,8 @@ public class UserService {
         if (dto.getRequestModeration() != null) event.setRequestModeration(dto.getRequestModeration());
         return event;
     }
-    
+
+    @Override
     public List<EventRequestDto> getAllUserRequests(int userId, int from, int size) {
         User user = getUserById(userId);
         List<EventRequest> requests = requestRepository
@@ -219,19 +227,20 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    @Override
     @Transactional
     public EventRequestDto addRequest(int userId, int eventId) {
         User requester = getUserById(userId);
         Event event = getEventById(eventId);
 
         if (!event.getState().equals(EventState.PUBLISHED)) {
-            throw new ConflictRequestException("Нельзя поучаствовать в неопубликованном мероприятии");
+            throw new ConflictRequestException("You cannot participate in an unpublished event");
         }
         if (userId == event.getInitiator().getId()) {
-            throw new ConflictRequestException("Организатор мероприятия не может отправить запрос на участие");
+            throw new ConflictRequestException("The event organizer cannot send a request to participate");
         }
         if (requestRepository.existsByRequester_IdAndEvent_Id(userId, eventId)) {
-            throw new ConflictRequestException("Запрос этого пользователя на участие в этом мероприятии уже существует");
+            throw new ConflictRequestException("This user's request to participate in this event already exists");
         }
 
 
@@ -257,8 +266,12 @@ public class UserService {
         }
 
         if (!event.isRequestModeration()) {
-            if (++confirmed > event.getParticipantLimit()) {
-                throw new ConflictRequestException("Лимит участников был достигнут");
+            if (confirmed == event.getParticipantLimit()) {
+                throw new ConflictRequestException("The participant limit has been reached");
+            } else {
+                event.setConfirmedRequests(++confirmed);
+                eventRepository.save(event);
+                return RequestState.CONFIRMED;
             }
         }
         return RequestState.PENDING;
@@ -267,16 +280,17 @@ public class UserService {
     private Event getEventById(int eventId) {
         return eventRepository
                 .findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Событие с id " + eventId + " не найдено"));
+                .orElseThrow(() -> new NotFoundException("Event with id " + eventId + " not found"));
     }
 
+    @Override
     public List<EventRequestDto> getUserRequestsByEvent(int userId, int eventId) {
         Event event = getEventById(eventId);
         User user = getUserById(userId);
 
         if (event.getInitiator().getId() != user.getId()) {
-            throw new IncorrectRequestException("Пользователь с id " + userId
-                    + " не является организатором мероприятия с id " + eventId);
+            throw new IncorrectRequestException("User with id " + userId
+                    + " is not the initiator of event with id " + eventId);
         }
 
         List<EventRequest> requests = requestRepository.getByEvent_Id(eventId);
@@ -288,13 +302,14 @@ public class UserService {
                 .orElse(Collections.emptyList());
     }
 
+    @Override
     @Transactional
     public EventRequestDto cancelRequest(int userId, int requestId) {
         EventRequest request = getRequestById(requestId);
         User requester = getUserById(userId);
 
         if (!request.getRequester().equals(requester)) {
-            throw new IncorrectRequestException("Id пользователя должно совпадать с id автора запроса");
+            throw new IncorrectRequestException("User's id must be the same as the request author's id");
         }
         request.setStatus(RequestState.CANCELED);
 
@@ -304,9 +319,10 @@ public class UserService {
     private EventRequest getRequestById(int requestId) {
         return requestRepository
                 .findById(requestId)
-                .orElseThrow(() -> new NotFoundException("Запрос с id " + requestId + " не найден"));
+                .orElseThrow(() -> new NotFoundException("Request with id " + requestId + " not found"));
     }
 
+    @Override
     @Transactional
     public RequestStatusUpdateResult changeRequestStatus(int userId, int eventId, RequestStatusUpdateRequest request) {
         getUserById(userId);
@@ -318,9 +334,9 @@ public class UserService {
         List<EventRequest> requests = requestRepository.findAllById(requestIds);
 
         if (requests == null) {
-            throw new NotFoundException("Заявки не найдены");
+            throw new NotFoundException("Requests not found");
         } else if (requests.size() != requestIds.size()) {
-            throw new IncorrectRequestException("В списке идентификаторов есть те, по которым запросы не найдены");
+            throw new IncorrectRequestException("The list of identifiers contains those for which requests were not found");
         }
 
         int participantLimit = event.getParticipantLimit();
@@ -348,20 +364,20 @@ public class UserService {
 
     private void checkStatus(RequestState status) {
         if (!status.equals(RequestState.PENDING)) {
-            throw new ConflictRequestException("Для совершения действия статус заявки должен быть равен PENDING");
+            throw new ConflictRequestException("To perform an action the application status must be PENDING");
         }
     }
 
     private void checkRequestsLimit(int requestsNumber, int participantLimit) {
         if (participantLimit <= requestsNumber) {
-            throw new ConflictRequestException("Достигнут лимит по количеству участников, " +
-                    "поэтому заявки не могут быть подтверждены");
+            throw new ConflictRequestException("The limit on the number of participants has been reached," +
+                    " so requests cannot be confirmed");
         }
     }
 
     private void checkConfirmation(Event event) {
         if (event.getParticipantLimit() == 0 && !event.isRequestModeration()) {
-            throw new ConflictRequestException("Подтверждение заявок не необходимо");
+            throw new ConflictRequestException("Request confirmation is not needed");
         }
     }
 }

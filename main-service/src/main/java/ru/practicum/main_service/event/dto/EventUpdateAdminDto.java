@@ -6,11 +6,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.practicum.main_service.event.model.StateAction;
+import lombok.ToString;
 import ru.practicum.main_service.event.model.StateAdminAction;
 import ru.practicum.main_service.location.dto.LocationDto;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
@@ -20,6 +19,7 @@ import static ru.practicum.main_service.consts.Consts.TIME_FORMAT;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@ToString
 @Setter
 public class EventUpdateAdminDto {
     private @Size(min = 3, max = 120) String title;

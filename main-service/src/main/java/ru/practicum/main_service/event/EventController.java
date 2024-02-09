@@ -2,6 +2,8 @@ package ru.practicum.main_service.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -21,6 +23,7 @@ import ru.practicum.main_service.event.comment.dto.CommentNewDto;
 import ru.practicum.main_service.event.dto.EventDto;
 import ru.practicum.main_service.event.dto.EventSmallDto;
 import ru.practicum.main_service.event.service.EventService;
+import ru.practicum.main_service.event.service.EventServiceImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -37,11 +40,12 @@ import static ru.practicum.main_service.consts.Consts.TIME_FORMAT;
 @RequestMapping(path = "/events")
 public class EventController {
 
+    @Qualifier("EventServiceImpl")
     protected final EventService service;
 
     @GetMapping("/{id}")
-    private EventDto getEventById(@PathVariable int id, HttpServletRequest request) {
-        log.info("Получен запрос на получение события по идентификатору");
+    public EventDto getEventById(@PathVariable int id, HttpServletRequest request) {
+        log.info("Request to get event by id has been received. EventId: {}", id);
         return service.getEventById(id, request);
     }
 
@@ -60,7 +64,17 @@ public class EventController {
             @RequestParam(value = "size", defaultValue = "10") @Min(1) int size,
             HttpServletRequest httpServletRequest) {
 
-        log.info("Получен запрос на получение событий с возможностью фильтрации");
+        log.info("Request to get events with filtering options received. " +
+                        "Text: {}, " +
+                        "Categories: {}, " +
+                        "Paid: {}, " +
+                        "RangeStart: {}, " +
+                        "RangeEnd: {}, " +
+                        "OnlyAvailable: {}, " +
+                        "Sort: {}, " +
+                        "From: {}, " +
+                        "Size: {}",
+                text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
 
 
         return service.getAllEvents(
@@ -73,7 +87,9 @@ public class EventController {
     public CommentDto addComment(@RequestHeader(value = "X-User-Id") int userId,
                                  @PathVariable int eventId,
                                  @RequestBody @Valid CommentNewDto dto) {
-        log.info("Получен запрос на добавление нового комментария");
+        log.info("Request to add new comment has been received. UserId: {}, EventId: {}, Comment: {}",
+                userId, eventId, dto.toString());
+
         return service.addComment(eventId, userId, dto);
     }
 
@@ -82,7 +98,9 @@ public class EventController {
                                   @PathVariable int eventId,
                                   @PathVariable int commentId,
                                   @RequestBody @Valid CommentNewDto dto) {
-        log.info("Получен запрос на изменение комментария с id " + commentId);
+        log.info("Request to edit comment has been received. UserId: {}, EventId: {}, CommentId: {}, Updated: {}",
+                userId, eventId, commentId, dto.toString());
+
         return service.editComment(eventId, commentId, userId, dto);
     }
 
@@ -90,7 +108,7 @@ public class EventController {
     @DeleteMapping("/comment/{commentId}")
     public void deleteComment(@RequestHeader(value = "X-User-Id") int userId,
                               @PathVariable int commentId) {
-        log.info("Получен запрос на удаление комментария с id " + commentId);
+        log.info("Request to delete comment has been received. UserId: {}, CommentId: {}", userId, commentId);
         service.deleteComment(commentId, userId);
     }
 
@@ -98,14 +116,15 @@ public class EventController {
     public List<CommentDto> getCommentsByEvent(@PathVariable int eventId,
                                                @RequestParam(value = "from", defaultValue = "0") @Min(0) int from,
                                                @RequestParam(value = "size", defaultValue = "10") @Min(1) int size) {
-        log.info("Получен запрос на получение комментариев под событием с id " + eventId);
+        log.info("Request to get comments by event has been received. EventId: {}, From: {}, Size: {}",
+                eventId, from, size);
 
         return service.getCommentsByEvent(eventId, from, size);
     }
 
     @GetMapping("/most_discussed")
     public EventDto getMostDiscussed() {
-        log.info("Получен запрос на получение самого обсуждаемого события");
+        log.info("Request to get the most discussed event has been received");
 
         return service.getMostDiscussed();
     }

@@ -2,6 +2,7 @@ package ru.practicum.main_service.admin;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -43,20 +44,23 @@ import static ru.practicum.main_service.consts.Consts.TIME_FORMAT;
 @RequiredArgsConstructor
 public class AdminController {
 
+    @Qualifier("AdminServiceImpl")
     private final AdminService service;
 
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(path = "/categories")
     public Category addCategory(@RequestBody @Valid CategoryDto categoryDto) {
-        log.info("Получен запрос на добавление категории");
+        log.info("Request to add a category has been received. Category: {}.", categoryDto.toString());
+
         return service.addCategory(categoryDto);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(path = "/categories/{catId}")
     public void deleteCategory(@PathVariable int catId) {
-        log.info("Получен запрос на удаление категории");
+        log.info("Request to delete category has been received. CategoryId: {}.", catId);
+
         service.deleteCategory(catId);
     }
 
@@ -64,7 +68,9 @@ public class AdminController {
     @PatchMapping(path = "/categories/{catId}")
     public Category editCategory(@PathVariable int catId,
                                  @RequestBody @Valid CategoryDto categoryDto) {
-        log.info("Получен запрос на изменение категории");
+        log.info("Request to edit category has been received. " +
+                "CategoryId: {}. New category: {}", catId, categoryDto.toString());
+
         return service.editCategory(catId, categoryDto);
     }
 
@@ -73,7 +79,8 @@ public class AdminController {
     public List<User> getUsers(@RequestParam(value = "ids", required = false) ArrayList<Integer> ids,
                                @RequestParam(value = "from", defaultValue = "0") @Min(0) int from,
                                @RequestParam(value = "size", defaultValue = "10") @Min(1) int size) {
-        log.info("Получен запрос на получение пользователей");
+        log.info("Request to get users has been received. Ids: {}, From: {}, Size: {}", ids, from, size);
+
         return service.getUsers(ids, from, size);
     }
 
@@ -81,7 +88,8 @@ public class AdminController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(path = "/users")
     public User addUser(@RequestBody @Valid UserDto user) {
-        log.info("Получен запрос на добавление нового пользователя");
+        log.info("Request to add user has been received. User: {}", user.toString());
+
         return service.addUser(user);
     }
 
@@ -89,7 +97,8 @@ public class AdminController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(path = "/users/{id}")
     public void deleteUser(@PathVariable int id) {
-        log.info("Получен запрос на удаление пользователя с id " + id);
+        log.info("Request to delete user has been received. UserId: {}", id);
+
         service.deleteUser(id);
     }
 
@@ -104,7 +113,15 @@ public class AdminController {
                                         @DateTimeFormat(pattern = TIME_FORMAT) LocalDateTime rangeEnd,
                                     @RequestParam(value = "from", defaultValue = "0", required = false) @Min(0) int from,
                                     @RequestParam(value = "size", defaultValue = "10", required = false) @Min(1) int size) {
-        log.info("Получен запрос на получение полной информации обо всех событиях");
+        log.info("Request to get complete information about all events has been received. " +
+                "UsersIds: {}, " +
+                "States: {}, " +
+                "Categories: {}, " +
+                "RangeStart: {}, " +
+                "RangeEnd: {}," +
+                "From: {}, " +
+                "Size: {}",
+                usersIds, states, categories, rangeStart, rangeEnd, from, size);
 
         return service.getEvents(usersIds,states, categories, rangeStart, rangeEnd, from, size);
     }
@@ -113,28 +130,34 @@ public class AdminController {
     @PatchMapping(path = "/events/{eventId}")
     public EventDto eventAdministration(@PathVariable int eventId,
                                         @RequestBody @Valid EventUpdateAdminDto updateAdminDto) {
-        log.info("Получен запрос на администрацию события");
+        log.info("Request to administrate event has been received. EventId: {}, UpdatedEvent: {}",
+                eventId, updateAdminDto.toString());
+
         return service.eventAdministration(eventId, updateAdminDto);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(path = "/compilations/{compId}")
     public void deleteCompilation(@PathVariable int compId) {
-        log.info("Получен запрос на удаление подборки событий");
+        log.info("Request to delete events compilation has been received. CompilationId: {}", compId);
+
         service.deleteCompilation(compId);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(path = "/compilations")
     public CompilationBigDto addCompilation(@RequestBody @Valid NewCompilationDto dto) {
-        log.info("Получен запрос на добавление новой подборки событий");
+        log.info("Request to add compilation has been received. Compilation: {}", dto.toString());
+
         return service.addCompilation(dto);
     }
 
     @PatchMapping(path = "/compilations/{compId}")
     public CompilationBigDto updateCompilation(@PathVariable int compId,
                                                @RequestBody @Valid UpdateCompilationDto dto) {
-        log.info("Получен запрос на обновление подборки событий");
+        log.info("Request to update compilation has been received. CompilationId: {}, UpdatedCompilation: {}",
+                compId, dto.toString());
+
         return service.updateCompilation(compId, dto);
     }
 }

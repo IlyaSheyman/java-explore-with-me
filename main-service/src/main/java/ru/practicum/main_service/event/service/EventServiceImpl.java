@@ -2,11 +2,13 @@ package ru.practicum.main_service.event.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.client.StatsClient;
 import ru.practicum.dto.StatisticsForListDto;
 import ru.practicum.main_service.admin.service.AdminService;
+import ru.practicum.main_service.admin.service.AdminServiceImpl;
 import ru.practicum.main_service.event.comment.dto.CommentDto;
 import ru.practicum.main_service.event.comment.dto.CommentMapper;
 import ru.practicum.main_service.event.comment.dto.CommentNewDto;
@@ -32,7 +34,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class EventService {
+public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
@@ -42,15 +44,18 @@ public class EventService {
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
 
+    @Qualifier("AdminServiceImpl")
     private final AdminService adminService;
     private final StatsClient statsClient;
 
+    @Override
     public EventDto getEventById(int id, HttpServletRequest request) {
         statsClient.postStats(request);
-        Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundException("Событие с id " + " не найдено"));
+        Event event = eventRepository
+                .findById(id).orElseThrow(() -> new NotFoundException("Event with id " + id + " not found"));
 
         if (!event.getState().equals(EventState.PUBLISHED)) {
-            throw new NotFoundException("Событие с id " + id + " не опубликовано");
+            throw new NotFoundException("Event with id " + id + " not found");
         }
         
         int uniqueViews = getViews(id);
@@ -64,6 +69,7 @@ public class EventService {
         eventRepository.updateViewsById(views, id);
     }
 
+    @Override
     public int getViews(int eventId) {
         List<StatisticsForListDto> response = statsClient.getStats(
                 LocalDateTime.now().minusYears(2),
@@ -74,6 +80,7 @@ public class EventService {
         return !response.isEmpty() ? response.get(0).getHits() : 0;
     }
 
+    @Override
     public List<EventSmallDto> getAllEvents(String text,
                                             List<Integer> categories,
                                             Boolean paid,
@@ -139,6 +146,7 @@ public class EventService {
         return filteredEvents;
     }
 
+    @Override
     public CommentDto addComment(int eventId, int userId, CommentNewDto dto) {
         Event event = getEvent(eventId);
         User user = getUser(userId);
@@ -152,14 +160,15 @@ public class EventService {
 
     private User getUser(int userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
+                .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
     }
 
     private Event getEvent(int eventId) {
         return eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Событие с id " + eventId + " не найдено"));
+                .orElseThrow(() -> new NotFoundException("Event with id " + eventId + " not found"));
     }
 
+    @Override
     public CommentDto editComment(int eventId, int commentId, int userId, CommentNewDto dto) {
         getEvent(eventId);
         getUser(userId);
@@ -171,22 +180,25 @@ public class EventService {
         return commentMapper.toCommentDto(commentRepository.save(comment));
     }
 
-    private Comment getComment(int commentId) {
+    @Override
+    public Comment getComment(int commentId) {
         return commentRepository.findById(commentId)
-                .orElseThrow(() -> new NotFoundException("Комментарий с id " + commentId + " не найден"));
+                .orElseThrow(() -> new NotFoundException("Comment with id " + commentId + " not found"));
     }
 
+    @Override
     public void deleteComment(int commentId, int userId) {
         User user = getUser(userId);
         Comment comment = getComment(commentId);
 
         if (comment.getAuthor().getId() != user.getId()) {
-            throw new IncorrectRequestException("Удалить комментарий может только его автор");
+            throw new IncorrectRequestException("Only comment's author can delete it");
         } else {
             commentRepository.deleteById(commentId);
         }
     }
 
+    @Override
     public List<CommentDto> getCommentsByEvent(int eventId, int from, int size) {
         getEvent(eventId);
         return commentRepository
@@ -196,6 +208,7 @@ public class EventService {
                 .collect(Collectors.toList());
     }
 
+    @Override
     public EventDto getMostDiscussed() {
         List<Integer> ids = commentRepository.findMostDiscussed();
         Integer eventId = ids.get(0);
@@ -203,7 +216,7 @@ public class EventService {
         if (eventId != null) {
             return eventMapper.toEventDto(getEvent(eventId));
         } else {
-            throw new NotFoundException("Наиболее обсуждаемое мероприятие не найдено");
+            throw new NotFoundException("Most discussed event is not found");
         }
     }
 }

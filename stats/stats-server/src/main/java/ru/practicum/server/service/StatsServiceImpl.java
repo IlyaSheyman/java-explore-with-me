@@ -18,17 +18,18 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class StatsService {
+public class StatsServiceImpl implements StatsService {
 
     private final StatisticsMapper mapper;
     private final StatisticsRepository repository;
 
     @Autowired
-    public StatsService(StatisticsMapper mapper, StatisticsRepository repository) {
+    public StatsServiceImpl(StatisticsMapper mapper, StatisticsRepository repository) {
         this.mapper = mapper;
         this.repository = repository;
     }
 
+    @Override
     @Transactional
     public StatisticsDto addStats(StatisticsDto stats) {
         Statistics stat = mapper.fromStatisticsDto(stats);
@@ -46,8 +47,9 @@ public class StatsService {
         return stats;
     }
 
+    @Override
     public List<StatisticsForListDto> getStats(LocalDateTime start,
-                                               LocalDateTime  end,
+                                               LocalDateTime end,
                                                String[] uris,
                                                boolean unique) {
 

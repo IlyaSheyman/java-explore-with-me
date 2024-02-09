@@ -34,7 +34,7 @@ import ru.practicum.main_service.location.storage.LocationRepository;
 import ru.practicum.main_service.user.model_and_dto.User;
 import ru.practicum.main_service.user.model_and_dto.UserDto;
 import ru.practicum.main_service.user.model_and_dto.UserMapper;
-import ru.practicum.main_service.user.service.UserService;
+import ru.practicum.main_service.user.service.UserServiceImpl;
 import ru.practicum.main_service.user.storage.UserRepository;
 
 import java.time.LocalDateTime;
@@ -45,13 +45,13 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class AdminService {
+public class AdminServiceImpl implements AdminService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
@@ -62,10 +62,11 @@ public class AdminService {
     private final LocationRepository locationRepository;
     private final LocationMapper locationMapper;
 
+    @Override
     @Transactional
     public Category addCategory(CategoryDto categoryDto) {
         if (categoryRepository.findAllNames().contains(categoryDto.getName())) {
-            throw new ConflictRequestException("Некорректный запрос: имя категории должно быть уникальным");
+            throw new ConflictRequestException("Invalid request: category name must be unique");
         } else {
             Category category = categoryMapper.fromCategoryDto(categoryDto);
             categoryRepository.save(category);
@@ -73,17 +74,19 @@ public class AdminService {
         }
     }
 
+    @Override
     @Transactional
     public void deleteCategory(int catId) {
         if (eventRepository.existsByCategoryId(catId)) {
-            throw new ConflictRequestException("Нельзя удалить категорию, к которой привязаны события");
+            throw new ConflictRequestException("You cannot delete a category that has events attached to it");
         } else if (categoryRepository.findById(catId) != null) {
             categoryRepository.deleteById(catId);
         } else {
-            throw new NotFoundException("Категория с id " + catId + " не найдена");
+            throw new NotFoundException("Category with id " + catId + " not found");
         }
     }
 
+    @Override
     @Transactional
     public Category editCategory(int catId, CategoryDto catDto) {
         if (categoryRepository.findById(catId) != null) {
@@ -94,7 +97,7 @@ public class AdminService {
 
             if (!previous.getName().equals(updated.getName())) {
                 if (categoryRepository.existsByNameIgnoreCase(catDto.getName())) {
-                    throw new ConflictRequestException("Категория с таким именем уже существует.");
+                    throw new ConflictRequestException("Category with title " + catDto.getName() + " already exists");
                 } else {
                     updated.setName(catDto.getName());
                 }
@@ -103,10 +106,11 @@ public class AdminService {
             categoryRepository.save(updated);
             return updated;
         } else {
-            throw new NotFoundException("Категория с id " + catId + " не найдена");
+            throw new NotFoundException("Category with id " + catId + " not found");
         }
     }
 
+    @Override
     public List<User> getUsers(List<Integer> ids, int from, int size) {
         Pageable pageable = PageRequest.of(from / size, size);
         Page<User> users;
@@ -120,25 +124,28 @@ public class AdminService {
         return users.getContent();
     }
 
+    @Override
     @Transactional
     public User addUser(UserDto userDto) {
         String email = userDto.getEmail();
         if (userRepository.findByEmail(email) != null) {
-            throw new ConflictRequestException("Пользователь с email " + email + " уже существует");
+            throw new ConflictRequestException("User with email " + email + " already exists");
         } else {
             return userRepository.save(userMapper.fromUserDto(userDto));
         }
     }
 
+    @Override
     @Transactional
     public void deleteUser(int id) {
         if (userRepository.existsById(id)) {
-            userRepository.deleteById(id); // TODO проверить, что в бд есть констрейнт на удаление связанных сущностей
+            userRepository.deleteById(id);
         } else {
-            throw new NotFoundException("Пользователь с id " + id + " не найден");
+            throw new NotFoundException("User with id " + id + " not found");
         }
     }
 
+    @Override
     public List<EventDto> getEvents(ArrayList<Integer> usersIds,
                                     ArrayList<String> states,
                                     ArrayList<Integer> categories,
@@ -180,14 +187,16 @@ public class AdminService {
         return filteredEvents;
     }
 
+    @Override
     public void validateTimeRange(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
        if (rangeEnd.isBefore(rangeStart)) {
-            throw new IncorrectRequestException("Конец временного промежутка раньше начала");
+            throw new IncorrectRequestException("End of time period before start");
         } else if (rangeEnd.equals(rangeStart)) {
-            throw new IncorrectRequestException("Конец и начало совпадают");
+            throw new IncorrectRequestException("The end and the start are the same");
         }
     }
 
+    @Override
     @Transactional
     public CompilationBigDto addCompilation(NewCompilationDto dto) {
         checkTitle(dto.getTitle());
@@ -205,25 +214,29 @@ public class AdminService {
 
     private void checkTitle(String title) {
         if (compilationRepository.existsByTitle(title)) {
-            throw new ConflictRequestException("Компиляция с названием " + title + " уже существует");
+            throw new ConflictRequestException("Compilation with title " + title + " already exists");
         }
     }
 
+    @Override
     @Transactional
     public void deleteCompilation(int compId) {
         if (compilationRepository.existsById(compId)) {
             compilationRepository.deleteById(compId);
         } else {
-            throw new NotFoundException("Подборка с id " + compId + " не найдена");
+            throw new NotFoundException("Compilation with id " + compId + " not found");
         }
     }
 
+    @Override
     @Transactional
     public CompilationBigDto updateCompilation(int compId, UpdateCompilationDto dto) {
-        checkTitle(dto.getTitle());
-
         Compilation compilation = getCompilation(compId);
-        compilation.setTitle(dto.getTitle());
+
+        if (dto.getTitle() != null) {
+            checkTitle(dto.getTitle());
+            compilation.setTitle(dto.getTitle());
+        }
 
         if (dto.getPinned() != null) {
             compilation.setPinned(dto.getPinned());
@@ -238,36 +251,43 @@ public class AdminService {
         return compilationMapper.toCompilationBigDto(compilationRepository.save(compilation));
     }
 
-    private Compilation getCompilation(int compId) {
+    @Override
+    public Compilation getCompilation(int compId) {
         return compilationRepository
                 .findById(compId)
-                .orElseThrow(() -> new NotFoundException("Компиляция с id " + compId + " уже существует"));
+                .orElseThrow(() -> new NotFoundException("Compilation with id " + compId + " already exists"));
     }
 
 
+    @Override
     @Transactional
     public EventDto eventAdministration(int eventId, EventUpdateAdminDto updateAdminDto) {
         Event event = eventRepository
                 .findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Событие с id " + eventId + " не найдено"));
+                .orElseThrow(() -> new NotFoundException("Event with id " + eventId + " not found"));
 
         if (event.getState().equals(EventState.PUBLISHED)) {
-            throw new ConflictRequestException("Событие уже опубликовано");
+            throw new ConflictRequestException("Event already published");
         } else if (event.getState().equals(EventState.CANCELED)) {
-            throw new ConflictRequestException("Событие отменено, его невозможно опубликовать");
+            throw new ConflictRequestException("Event has been cancelled, it cannot be published");
         }
 
         checkAdminTime(event.getEventDate());
         checkAdminTime(updateAdminDto.getEventDate());
-        changeState(event, updateAdminDto.getStateAction());
+
+        if (updateAdminDto.getStateAction() != null) {
+            changeState(event, updateAdminDto.getStateAction());
+        }
+
         updateEvent(event, updateAdminDto);
 
         eventRepository.save(event);
         return eventMapper.toEventDto(event);
     }
 
+    @Override
     @Transactional
-    private void updateEvent(Event event, EventUpdateAdminDto dto) {
+    public void updateEvent(Event event, EventUpdateAdminDto dto) {
         LocationDto locDto = dto.getLocation();
 
         if (dto.getTitle() != null)
@@ -315,7 +335,7 @@ public class AdminService {
                 event.setPublishedOn(LocalDateTime.now());
                 break;
             default:
-                throw new IncorrectRequestException("Указано некорректное действие по администрации события");
+                throw new IncorrectRequestException("Incorrect event administration action");
         }
     }
 
@@ -324,8 +344,8 @@ public class AdminService {
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime limit = now.minusMinutes(60);
             if (eventDate.isBefore(limit)) {
-                throw new IncorrectRequestException("Дата начала изменяемого события должна быть не ранее чем за час " +
-                        "от даты публикации");
+                throw new IncorrectRequestException("The start date of the event being modified " +
+                        "must be no earlier than an hour from the publication date");
             }
         }
     }
